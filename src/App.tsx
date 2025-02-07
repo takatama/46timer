@@ -220,7 +220,7 @@ function App() {
   };
 
   // Handler for language toggle
-  const handleLanguageChange = (event: React.MouseEvent<HTMLElement>, newLang: "en" | "jp") => {
+  const handleLanguageChange = (_event: React.MouseEvent<HTMLElement>, newLang: "en" | "jp") => {
     if (newLang) {
       setLanguage(newLang);
     }
@@ -289,7 +289,7 @@ function App() {
                   <ToggleButtonGroup
                     value={flavor}
                     exclusive
-                    onChange={(e, newFlavor) => { if (newFlavor) setFlavor(newFlavor); }}
+                    onChange={(_e, newFlavor) => { if (newFlavor) setFlavor(newFlavor); }}
                     size="small"
                   >
                     <ToggleButton value="sweet">{t.sweet}</ToggleButton>
@@ -306,7 +306,7 @@ function App() {
                   <ToggleButtonGroup
                     value={strength}
                     exclusive
-                    onChange={(e, newStrength) => { if (newStrength) setStrength(newStrength); }}
+                    onChange={(_e, newStrength) => { if (newStrength) setStrength(newStrength); }}
                     size="small"
                   >
                     <ToggleButton value="light">{t.light}</ToggleButton>
