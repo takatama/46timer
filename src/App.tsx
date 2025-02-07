@@ -199,7 +199,7 @@ function App() {
     setTimerRunning(true);
     timerRef.current = setInterval(() => {
       setCurrentTime((prev) => prev + 1);
-    }, 100);
+    }, 1000);
   };
 
   // Pause the timer
