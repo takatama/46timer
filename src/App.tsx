@@ -66,7 +66,12 @@ const translations: { [key: string]: { [key: string]: string } } = {
     finish: "Finish",
     language: "Language",
     darkMode: "Dark Mode",
-    lightMode: "Light Mode"
+    lightMode: "Light Mode",
+    roastLevel: "Roast Level",
+    lightRoast: "Light",
+    mediumRoast: "Medium",
+    darkRoast: "Dark",
+    waterTemp: "Water Temperature",
   },
   jp: {
     title: "4:6メソッド タイマー",
@@ -90,7 +95,12 @@ const translations: { [key: string]: { [key: string]: string } } = {
     finish: "完成",
     language: "言語",
     darkMode: "ダークモード",
-    lightMode: "ライトモード"
+    lightMode: "ライトモード",
+    roastLevel: "焙煎度",
+    lightRoast: "浅煎り",
+    mediumRoast: "中煎り",
+    darkRoast: "深煎り",
+    waterTemp: "湯温",
   }
 };
 
@@ -183,6 +193,16 @@ function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
   const theme = getTheme(darkMode ? 'dark' : 'light');
+  const [roastLevel, setRoastLevel] = useState("medium");
+
+  // 焙煎度に応じた温度を取得する関数
+  const getWaterTemperature = (roast: string) => {
+    switch (roast) {
+      case "light": return 93;
+      case "dark": return 83;
+      default: return 88;
+    }
+  };
 
   // Recalculate steps whenever coffee parameters change
   useEffect(() => {
@@ -289,6 +309,31 @@ function App() {
         <Box sx={{ mb: 2 }}>
           <Table>
             <TableBody>
+            <TableRow>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {t.roastLevel}:
+                </TableCell>
+                <TableCell align="left">
+                  <ToggleButtonGroup
+                    value={roastLevel}
+                    exclusive
+                    onChange={(_e, newRoast) => { if (newRoast) setRoastLevel(newRoast); }}
+                    size="small"
+                  >
+                    <ToggleButton value="light">{t.lightRoast}</ToggleButton>
+                    <ToggleButton value="medium">{t.mediumRoast}</ToggleButton>
+                    <ToggleButton value="dark">{t.darkRoast}</ToggleButton>
+                  </ToggleButtonGroup>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {t.waterTemp}:
+                </TableCell>
+                <TableCell align="left">
+                  <Typography component="span">{getWaterTemperature(roastLevel)}℃</Typography>
+                </TableCell>
+              </TableRow>
               <TableRow>
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                   {t.coffeeAmount}:
