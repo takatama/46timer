@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>4:6メソッド コーヒータイマー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f8f8f8;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    /* 入力エリアをテーブルでレイアウト */
+    .input-section table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .input-section td {
+      padding: 5px;
+      vertical-align: middle;
+    }
+    .input-label {
+      text-align: right;
+      font-weight: bold;
+      width: 40%;
+    }
+    .input-value {
+      text-align: left;
+      width: 60%;
+    }
+    .input-section button {
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .options button {
+      margin: 0 5px;
+      margin-top: 4px;
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .options button.selected {
+      background: #007aff;
+      color: #fff;
+      border-color: #007aff;
+    }
+    /* コントロールボタン（再生・一時停止・リセット） */
+    .buttons-section {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .buttons-section button {
+      margin: 0 10px;
+      font-size: 16px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    /* アイコン付き（Unicodeアイコンを利用） */
+    .play-button::before {
+      content: "▶ ";
+    }
+    .pause-button::before {
+      content: "❚❚ ";
+    }
+    .reset-button::before {
+      content: "⟲ ";
+    }
+    /* タイムライン／ステップ領域 */
+    .steps {
+      position: relative;
+      height: 300px;
+      margin: 20px 0;
+    }
+    /* グレーの縦線は擬似要素で、左側45pxに配置 */
+    .steps:before {
+      content: "";
+      position: absolute;
+      left: 45px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #ccc;
+    }
+    /* 各ステップ（テキスト部分の中央が開始時刻に揃う） */
+    .step {
+      position: absolute;
+      left: 45px;
+      width: calc(100% - 45px);
+      transform: translateY(-50%);
+    }
+    /* 黒丸（マーカー）：.step 内で left:0 とすると、実際はグレーの縦線上（45px）に表示 */
+    .step-marker {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      background: black;
+      border-radius: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
+    /* 各ステップのテキスト：マーカーから右側に配置、横線は疑似要素で引く */
+    .step-text {
+      margin-left: 20px;
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .step-text:before {
+      content: "";
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      width: 16px;
+      height: 1px;
+      background: black;
+      transform: translateY(-50%);
+    }
+    /* 現在時刻を示す矢印＋タイマー：矢印の左側に時刻表示 */
+    /* arrow-container の left を -12px に設定 */
+    .arrow-container {
+      position: absolute;
+      left: -12px;
+      display: flex;
+      align-items: center;
+    }
+    .time-display {
+      font-weight: bold;
+      font-size: 16px;
+      margin-right: 6px;
+    }
+    .arrow-icon {
+      width: 24px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .blinking .arrow-icon {
+      animation: blink 1s linear infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    /* 進捗表示 */
+    .step.completed .step-text {
+      color: #555;
+    }
+    .step.current .step-text {
+      color: #d9534f;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- 入力エリア -->
+  <div class="input-section">
+    <table>
+      <tr>
+        <td class="input-label">豆の量:</td>
+        <td class="input-value">
+          <button id="decreaseAmount">-</button>
+          <span id="coffeeAmount">20</span>g
+          <button id="increaseAmount">+</button>
+        </td>
+      </tr>
+      <tr>
+        <td class="input-label">湯量:</td>
+        <td class="input-value">
+          <span id="waterAmount">300</span>ml
+        </td>
+      </tr>
+      <tr>
+        <td class="input-label">味:</td>
+        <td class="input-value">
+          <div class="options" id="tasteOptions">
+            <button data-value="sweet">甘味</button>
+            <button data-value="balance" class="selected">バランス</button>
+            <button data-value="sour">酸味</button>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="input-label">濃さ:</td>
+        <td class="input-value">
+          <div class="options" id="strengthOptions">
+            <button data-value="light">薄い</button>
+            <button data-value="balance" class="selected">バランス</button>
+            <button data-value="strong">濃い</button>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- コントロールボタン（再生、一時停止、リセット） -->
+  <div class="buttons-section">
+    <button id="playButton" class="play-button"></button>
+    <button id="pauseButton" class="pause-button"></button>
+    <button id="resetButton" class="reset-button"></button>
+  </div>
+  
+  <!-- タイムライン／抽出ステップ -->
+  <div class="steps-section">
+    <div class="steps" id="stepsContainer">
+      <!-- 各ステップは regenerateSteps() で動的生成 -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // グローバル変数
+  let coffeeAmount = 20;
+  let flavor = "balance";
+  let strength = "balance";
+  let timer = null;
+  let currentTime = 0;  // 秒単位
+  const totalTime = 210; // タイムライン全体の秒数
+
+  // DOM要素
+  const coffeeAmountEl = document.getElementById("coffeeAmount");
+  const waterAmountEl = document.getElementById("waterAmount");
+  const tasteOptions = document.getElementById("tasteOptions");
+  const strengthOptions = document.getElementById("strengthOptions");
+  const stepsContainer = document.getElementById("stepsContainer");
+  const playButton = document.getElementById("playButton");
+  const pauseButton = document.getElementById("pauseButton");
+  const resetButton = document.getElementById("resetButton");
+
+  // 湯量表示更新
+  function updateWaterDisplay() {
+    const totalWater = coffeeAmount * 15;
+    waterAmountEl.textContent = totalWater;
+  }
+
+  // 入力欄のイベントリスナー
+  document.getElementById("increaseAmount").addEventListener("click", () => {
+    coffeeAmount++;
+    coffeeAmountEl.textContent = coffeeAmount;
+    updateWaterDisplay();
+    regenerateSteps();
+  });
+  document.getElementById("decreaseAmount").addEventListener("click", () => {
+    if (coffeeAmount > 1) {
+      coffeeAmount--;
+      coffeeAmountEl.textContent = coffeeAmount;
+      updateWaterDisplay();
+      regenerateSteps();
+    }
+  });
+  tasteOptions.addEventListener("click", (e) => {
+    if(e.target.tagName === "BUTTON") {
+      Array.from(tasteOptions.children).forEach(btn => btn.classList.remove("selected"));
+      e.target.classList.add("selected");
+      flavor = e.target.getAttribute("data-value");
+      regenerateSteps();
+    }
+  });
+  strengthOptions.addEventListener("click", (e) => {
+    if(e.target.tagName === "BUTTON") {
+      Array.from(strengthOptions.children).forEach(btn => btn.classList.remove("selected"));
+      e.target.classList.add("selected");
+      strength = e.target.getAttribute("data-value");
+      regenerateSteps();
+    }
+  });
+
+  /* 4:6メソッドに基づくステップ計算
+     ・総湯量 = coffeeAmount * 15
+     ・味フェーズ：総湯量の40%を2回に分割
+         - sweet: 1回目 60%、2回目 40%
+         - sour: 1回目 40%、2回目 60%
+         - balance: 両方50%
+     ・濃さフェーズ：総湯量の60%を
+         - light: 1回 (固定 1:30 = 90秒)
+         - balance: 2回 → Strength pour 1 固定 1:30 (90秒)、Strength pour 2 は残り120秒を (2+1=3) で均等割 → 90+60=150秒
+         - strong: 3回 → Strength pour 1 固定 1:30 (90秒)、残り2回は 120秒を (2+1=3) で割る → 90+40=130秒、90+80=170秒
+     ・最終ステップは常に 210秒 (Finish)
+  */
+  function calculateSteps(coffeeAmount, flavor, strength) {
+    const totalWater = coffeeAmount * 15;
+    const flavorWater = totalWater * 0.4;
+    const strengthWater = totalWater * 0.6;
+    let flavor1, flavor2;
+    if (flavor === "sweet") {
+      flavor1 = flavorWater * 0.6;
+      flavor2 = flavorWater * 0.4;
+    } else if (flavor === "sour") {
+      flavor1 = flavorWater * 0.4;
+      flavor2 = flavorWater * 0.6;
+    } else {  // balance
+      flavor1 = flavorWater * 0.5;
+      flavor2 = flavorWater * 0.5;
+    }
+    let strengthSteps;
+    if (strength === "light") {
+      strengthSteps = 1;
+    } else if (strength === "strong") {
+      strengthSteps = 3;
+    } else {  // balance
+      strengthSteps = 2;
+    }
+    const steps = [];
+    // ステップ1: 味フェーズ1 (0秒)
+    steps.push({
+      time: 0,
+      pourAmount: flavor1,
+      cumulative: flavor1,
+      description: "Flavor pour 1"
+    });
+    // ステップ2: 味フェーズ2 (45秒)
+    steps.push({
+      time: 45,
+      pourAmount: flavor2,
+      cumulative: flavor1 + flavor2,
+      description: "Flavor pour 2"
+    });
+    // 濃さフェーズ：Strength pours
+    const strengthPourAmount = strengthWater / strengthSteps;
+    // Strength pour 1 固定 1:30 (90秒)
+    steps.push({
+      time: 90,
+      pourAmount: strengthPourAmount,
+      cumulative: steps[steps.length - 1].cumulative + strengthPourAmount,
+      description: "Strength pour 1"
+    });
+    // 残りのStrength pourがある場合
+    if (strengthSteps > 1) {
+      const remainingPours = strengthSteps - 1;
+      const remainingTime = 210 - 90; // 120秒
+      const interval = remainingTime / (remainingPours + 1);
+      for (let i = 2; i <= strengthSteps; i++) {
+        const t = 90 + interval * (i - 1);
+        const cumulative = steps[steps.length - 1].cumulative + strengthPourAmount;
+        steps.push({
+          time: t,
+          pourAmount: strengthPourAmount,
+          cumulative: cumulative,
+          description: `Strength pour ${i}`
+        });
+      }
+    }
+    // 最終ステップ: Finish (210秒)
+    steps.push({
+      time: 210,
+      pourAmount: 0,
+      cumulative: totalWater,
+      description: "Finish"
+    });
+    return steps;
+  }
+
+  // ステップ再生成と描画
+  let stepsData = [];
+  function regenerateSteps() {
+    stepsData = calculateSteps(coffeeAmount, flavor, strength);
+    renderSteps();
+  }
+
+  function renderSteps() {
+    stepsContainer.innerHTML = "";
+    stepsData.forEach(step => {
+      const stepEl = document.createElement("div");
+      stepEl.className = "step";
+      const containerHeight = stepsContainer.clientHeight;
+      // 0:00 の top を 5px にする。以降は+5pxのオフセット
+      let topPos = (step.time / totalTime) * containerHeight;
+      topPos = (step.time === 0) ? 5 : topPos + 5;
+      stepEl.style.top = topPos + "px";
+      const markerEl = document.createElement("div");
+      markerEl.className = "step-marker";
+      stepEl.appendChild(markerEl);
+      const textEl = document.createElement("div");
+      textEl.className = "step-text";
+      textEl.innerHTML = `<span class="step-time">${formatTime(step.time)}</span> → ${step.description} (${step.cumulative.toFixed(0)}ml)`;
+      stepEl.appendChild(textEl);
+      stepsContainer.appendChild(stepEl);
+    });
+    const arrowContainer = document.createElement("div");
+    arrowContainer.className = "arrow-container";
+    arrowContainer.id = "arrowContainer";
+    arrowContainer.innerHTML = `<span class="time-display" id="timeDisplay">0:00</span><span class="arrow-icon" id="blinkingArrow">▼</span>`;
+    stepsContainer.appendChild(arrowContainer);
+    updateArrow();
+  }
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return m + ":" + (s < 10 ? "0" + s : s);
+  }
+
+  function updateArrow() {
+    const arrowContainer = document.getElementById("arrowContainer");
+    if (!arrowContainer) return;
+    const containerHeight = stepsContainer.clientHeight;
+    const clampedTime = Math.min(currentTime, totalTime);
+    let arrowPos = (clampedTime / totalTime) * containerHeight;
+    arrowContainer.style.top = (arrowPos - 12) + "px";
+    const timeDisplay = document.getElementById("timeDisplay");
+    if (timeDisplay) {
+      timeDisplay.textContent = formatTime(currentTime);
+    }
+  }
+
+  // タイマー処理（再生、一時停止、リセット）
+  function startTimer() {
+    if (timer) return;
+    document.getElementById("arrowContainer").classList.add("blinking");
+    timer = setInterval(() => {
+      currentTime++;
+      updateArrow();
+      // 各ステップの進捗表示
+      document.querySelectorAll(".step").forEach(stepEl => {
+        const timeParts = stepEl.querySelector(".step-time").textContent.split(":");
+        const stepTime = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+        if (currentTime >= stepTime) {
+          stepEl.classList.add("completed");
+          stepEl.classList.remove("current");
+        }
+      });
+      let currentStepEl = null;
+      document.querySelectorAll(".step").forEach(stepEl => {
+        const timeParts = stepEl.querySelector(".step-time").textContent.split(":");
+        const stepTime = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+        if (currentTime >= stepTime) {
+          currentStepEl = stepEl;
+        }
+      });
+      if (currentStepEl) {
+        currentStepEl.classList.add("current");
+      }
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timer = null;
+    currentTime = 0;
+    document.getElementById("arrowContainer").classList.remove("blinking");
+    updateArrow();
+    document.querySelectorAll(".step").forEach(stepEl => {
+      stepEl.classList.remove("completed", "current");
+    });
+  }
+
+  playButton.addEventListener("click", startTimer);
+  pauseButton.addEventListener("click", pauseTimer);
+  resetButton.addEventListener("click", resetTimer);
+
+  updateWaterDisplay();
+  regenerateSteps();
+</script>
+</body>
+</html>
