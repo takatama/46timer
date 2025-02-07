@@ -93,11 +93,11 @@ function calculateSteps(coffeeAmount: number, flavor: string, strength: string) 
   let flavor1, flavor2;
   // Adjust flavor pours based on taste selection
   if (flavor === "sweet") {
-    flavor1 = flavorWater * 0.6;
-    flavor2 = flavorWater * 0.4;
-  } else if (flavor === "sour") {
     flavor1 = flavorWater * 0.4;
     flavor2 = flavorWater * 0.6;
+  } else if (flavor === "sour") {
+    flavor1 = flavorWater * 0.6;
+    flavor2 = flavorWater * 0.4;
   } else {
     flavor1 = flavorWater * 0.5;
     flavor2 = flavorWater * 0.5;
