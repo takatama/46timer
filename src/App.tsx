@@ -10,6 +10,8 @@ import {
   Button,
   ToggleButton,
   ToggleButtonGroup,
+  IconButton,
+  useMediaQuery,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -17,26 +19,30 @@ import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
-// Create an earth-tone theme
-const theme = createTheme({
+// Create theme with both light and dark modes
+const getTheme = (mode: 'light' | 'dark') => createTheme({
   palette: {
+    mode,
     primary: {
-      main: '#6D4C41', // a rich brown
+      main: mode === 'light' ? '#6D4C41' : '#A1887F',
     },
     secondary: {
-      main: '#A1887F', // a softer brown
+      main: mode === 'light' ? '#A1887F' : '#8D6E63',
     },
     background: {
-      default: '#F5F5DC' // a beige background
-    }
+      default: mode === 'light' ? '#F5F5DC' : '#121212',
+      paper: mode === 'light' ? '#FFFFFF' : '#1E1E1E',
+    },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
   }
 });
 
-// Translation dictionary
+// Add dark mode translations
 const translations: { [key: string]: { [key: string]: string } } = {
   en: {
     title: "4:6 Method Timer",
@@ -58,7 +64,9 @@ const translations: { [key: string]: { [key: string]: string } } = {
     strengthPour2: "Strength pour 2",
     strengthPour3: "Strength pour 3",
     finish: "Finish",
-    language: "Language"
+    language: "Language",
+    darkMode: "Dark Mode",
+    lightMode: "Light Mode"
   },
   jp: {
     title: "4:6メソッド タイマー",
@@ -80,7 +88,9 @@ const translations: { [key: string]: { [key: string]: string } } = {
     strengthPour2: "濃さ注ぎ2",
     strengthPour3: "濃さ注ぎ3",
     finish: "完成",
-    language: "言語"
+    language: "言語",
+    darkMode: "ダークモード",
+    lightMode: "ライトモード"
   }
 };
 
@@ -170,6 +180,9 @@ function App() {
   const [steps, setSteps] = useState<{ time: number; pourAmount: number; cumulative: number; descriptionKey: string; }[]>([]);
   const [timerRunning, setTimerRunning] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [darkMode, setDarkMode] = useState(prefersDarkMode);
+  const theme = getTheme(darkMode ? 'dark' : 'light');
 
   // Recalculate steps whenever coffee parameters change
   useEffect(() => {
@@ -185,6 +198,11 @@ function App() {
       }
     };
   }, []);
+
+  // Update dark mode when system preference changes
+  useEffect(() => {
+    setDarkMode(prefersDarkMode);
+  }, [prefersDarkMode]);
 
   // Function to format seconds as "m:ss"
   const formatTime = (seconds: number) => {
@@ -220,7 +238,7 @@ function App() {
   };
 
   // Handler for language toggle
-  const handleLanguageChange = (_event: React.MouseEvent<HTMLElement>, newLang: "en" | "jp") => {
+  const handleLanguageChange = (_e: React.MouseEvent<HTMLElement>, newLang: "en" | "jp") => {
     if (newLang) {
       setLanguage(newLang);
     }
@@ -239,9 +257,21 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="sm">
-        {/* Language toggle */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Container maxWidth="sm" sx={{ 
+        bgcolor: 'background.default',
+        color: 'text.primary',
+        minHeight: '100vh',
+        py: 2
+      }}>
+        {/* Language and dark mode toggles */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
+          <IconButton
+            onClick={() => setDarkMode(!darkMode)}
+            color="inherit"
+            title={darkMode ? t.lightMode : t.darkMode}
+          >
+            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
           <ToggleButtonGroup
             value={language}
             exclusive
