@@ -39,6 +39,7 @@ const theme = createTheme({
 // Translation dictionary
 const translations: { [key: string]: { [key: string]: string } } = {
   en: {
+    title: "4:6 Method Timer",
     coffeeAmount: "Coffee Amount",
     waterVolume: "Water Volume",
     taste: "Taste",
@@ -60,6 +61,7 @@ const translations: { [key: string]: { [key: string]: string } } = {
     language: "Language"
   },
   jp: {
+    title: "4:6メソッド タイマー",
     coffeeAmount: "豆の量",
     waterVolume: "湯量",
     taste: "味",
@@ -251,7 +253,7 @@ function App() {
           </ToggleButtonGroup>
         </Box>
         <Typography variant="h5" align="center" gutterBottom>
-          {t.coffeeAmount} Timer
+          {t.title}
         </Typography>
         {/* Input section as a table */}
         <Box sx={{ mb: 2 }}>
