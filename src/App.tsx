@@ -116,8 +116,8 @@ function App() {
   const [language, setLanguage] = useState<"en" | "ja">("en");
   const t = translations[language]; // shorthand for current translations
   const [beansAmount, setBeansAmount] = useState(20);
-  const [flavor, setFlavor] = useState("balance");
-  const [strength, setStrength] = useState("balance");
+  const [flavor, setFlavor] = useState("middle");
+  const [strength, setStrength] = useState("medium");
   const [currentTime, setCurrentTime] = useState(0);
   const [steps, setSteps] = useState<Step[]>([]);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -197,7 +197,7 @@ function App() {
         color: 'text.primary',
         minHeight: '100vh',
         py: 2,
-        width: '412px',
+        width: '100%',
       }}>
         <Header
           darkMode={darkMode}

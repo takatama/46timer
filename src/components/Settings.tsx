@@ -115,7 +115,7 @@ const Settings: React.FC<SettingsProps> = ({
               sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
             >
               <ToggleButton value="sweet">{t.sweet}</ToggleButton>
-              <ToggleButton value="balance">{t.balance}</ToggleButton>
+              <ToggleButton value="middle">{t.middle}</ToggleButton>
               <ToggleButton value="sour">{t.sour}</ToggleButton>
             </ToggleButtonGroup>
           </TableCell>
@@ -133,7 +133,7 @@ const Settings: React.FC<SettingsProps> = ({
               sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
             >
               <ToggleButton value="light">{t.light}</ToggleButton>
-              <ToggleButton value="balance">{t.balance}</ToggleButton>
+              <ToggleButton value="medium">{t.medium}</ToggleButton>
               <ToggleButton value="strong">{t.strong}</ToggleButton>
             </ToggleButtonGroup>
           </TableCell>
