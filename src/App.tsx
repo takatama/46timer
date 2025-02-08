@@ -104,6 +104,19 @@ const translations: { [key: string]: { [key: string]: string } } = {
   }
 };
 
+// Timeline constants
+const TIMELINE_CONSTANTS = {
+  CONTAINER_HEIGHT: 300,
+  TOTAL_TIME: 210,
+  MARKER_SIZE: 8,
+  ARROW_OFFSET: 41,
+  ARROW_HEIGHT: 12,
+  TIMELINE_LEFT_MARGIN: 40,
+  STEP_TEXT_MARGIN: 20,
+  FIRST_STEP_OFFSET: 5,
+  FONT_SIZE: '0.875rem' // default size of Typography variant="body2"
+} as const;
+
 // Function to calculate timer steps based on the 4:6 method
 function calculateSteps(beansAmount: number, flavor: string, strength: string) {
   // Total water used = beansAmount * 15
@@ -266,15 +279,15 @@ function App() {
 
   // Calculate arrow position (for timeline progress)
   const getArrowTop = () => {
-    // The timeline container height is assumed to be 300px
-    const containerHeight = 300;
-    // Clamp currentTime to totalTime (210 seconds)
-    const clampedTime = Math.min(currentTime, 210);
-    // Calculate proportional position
-    // subtract half the arrow height (approx 12px)
-    return (clampedTime / 210) * containerHeight - 12 + 5;
+    const clampedTime = Math.min(currentTime, TIMELINE_CONSTANTS.TOTAL_TIME);
+    return (clampedTime / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT - TIMELINE_CONSTANTS.ARROW_HEIGHT + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
   };
 
+  const getStepPosition = (time: number) => {
+    const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
+    return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
+  };
+  
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="sm" sx={{
@@ -420,18 +433,16 @@ function App() {
         <Box
           sx={{
             position: 'relative',
-            height: '300px',
+            height: `${TIMELINE_CONSTANTS.CONTAINER_HEIGHT}px`,
             borderLeft: '3px solid #ccc',
-            ml: '40px', // leave space for arrow
+            ml: `${TIMELINE_CONSTANTS.TIMELINE_LEFT_MARGIN}px`,
             mb: 4
           }}
         >
           {/* Render each step using absolute positioning */}
           {steps.map((step, index) => {
             // Calculate top position (with 0:00 fixed at 5px, others with +5px offset)
-            const containerHeight = 300;
-            let topPos = (step.time / 210) * containerHeight;
-            topPos = step.time === 0 ? 5 : topPos + 5;
+            const topPos = getStepPosition(step.time);
             return (
               <Box
                 key={index}
@@ -449,8 +460,8 @@ function App() {
                     position: 'absolute',
                     left: -1,
                     top: '50%',
-                    width: '8px',
-                    height: '8px',
+                    width: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
+                    height: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
                     bgcolor: darkMode ? 'white' : 'black',
                     borderRadius: '50%',
                     transform: 'translate(-50%, -50%)'
@@ -461,8 +472,9 @@ function App() {
                 <Typography
                   variant="body2"
                   sx={{
-                    ml: '20px',
-                    textDecoration: currentTime > step.time ? 'underline' : 'none'
+                    ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
+                    textDecoration: currentTime > step.time ? 'underline' : 'none',
+                    fontSize: TIMELINE_CONSTANTS.FONT_SIZE
                   }}
                   className="step-text"
                 >
