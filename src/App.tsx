@@ -152,8 +152,8 @@ function App() {
     if (timerRunning) return;
     setTimerRunning(true);
     timerRef.current = setInterval(() => {
-      setCurrentTime((prev) => prev + 1);
-    }, 1000);
+      setCurrentTime((prev) => prev + 0.5);
+    }, 500);
   };
 
   // Pause the timer
