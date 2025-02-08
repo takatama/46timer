@@ -7,9 +7,9 @@ import Settings from './components/Settings';
 import Controls from './components/Controls';
 import Timeline from './components/Timeline';
 import Footer from './components/Footer';
-import './App.css';
 import { translations } from './translations/index'
 import { DynamicTranslations, Step } from './types';
+import './App.css';
 
 // Create theme with both light and dark modes
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -113,19 +113,19 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
 
 function App() {
   // State variables for language, coffee parameters, and timer
-  const [language, setLanguage] = useState<"en" | "ja">("en");
-  const t = translations[language]; // shorthand for current translations
-  const [beansAmount, setBeansAmount] = useState(20);
-  const [flavor, setFlavor] = useState("middle");
-  const [strength, setStrength] = useState("medium");
-  const [currentTime, setCurrentTime] = useState(0);
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const timerRef = useRef<number | null>(null);
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
   const theme = getTheme(darkMode ? 'dark' : 'light');
+  const [language, setLanguage] = useState<"en" | "ja">("en");
+  const t = translations[language]; // shorthand for current translations
   const [roastLevel, setRoastLevel] = useState("medium");
+  const [beansAmount, setBeansAmount] = useState(20);
+  const [flavor, setFlavor] = useState("middle");
+  const [strength, setStrength] = useState("medium");
+  const [steps, setSteps] = useState<Step[]>([]);
+  const timerRef = useRef<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
 
   // Detect user's preferred language
   useEffect(() => {
