@@ -127,6 +127,16 @@ function App() {
   const theme = getTheme(darkMode ? 'dark' : 'light');
   const [roastLevel, setRoastLevel] = useState("medium");
 
+  // Detect user's preferred language
+  useEffect(() => {
+    const userLang = navigator.language || navigator.languages[0];
+    if (userLang.startsWith('ja')) {
+      setLanguage('ja');
+    } else {
+      setLanguage('en');
+    }
+  }, []);
+
   // Recalculate steps whenever coffee parameters change
   useEffect(() => {
     const newSteps = calculateSteps(beansAmount, flavor, strength);
