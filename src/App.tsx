@@ -195,7 +195,7 @@ function App() {
   const theme = getTheme(darkMode ? 'dark' : 'light');
   const [roastLevel, setRoastLevel] = useState("medium");
 
-  // 焙煎度に応じた温度を取得する関数
+  // Function to get temperature based on roast level
   const getWaterTemperature = (roast: string) => {
     switch (roast) {
       case "light": return 93;
@@ -412,7 +412,7 @@ function App() {
           sx={{
             position: 'relative',
             height: '300px',
-            borderLeft: '2px solid #ccc',
+            borderLeft: '3px solid #ccc',
             ml: '40px', // leave space for arrow
             mb: 4
           }}
@@ -438,11 +438,11 @@ function App() {
                 <Box
                   sx={{
                     position: 'absolute',
-                    left: 0,
+                    left: -1,
                     top: '50%',
                     width: '8px',
                     height: '8px',
-                    bgcolor: 'black',
+                    bgcolor: darkMode ? 'white' : 'black',
                     borderRadius: '50%',
                     transform: 'translate(-50%, -50%)'
                   }}
