@@ -10,6 +10,12 @@ import Footer from './components/Footer';
 import { translations } from './translations/index'
 import { DynamicTranslations, Step } from './types';
 import './App.css';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useSearchParams
+} from 'react-router-dom';
 
 // Create theme with both light and dark modes
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -111,8 +117,17 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
   return steps;
 }
 
+function AppWrapper() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
 function App() {
-  // State variables for language, coffee parameters, and timer
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
   const theme = getTheme(darkMode ? 'dark' : 'light');
@@ -126,9 +141,36 @@ function App() {
   const timerRef = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  useEffect(() => {
+    const paramLang = searchParams.get('lang') as "en" | "ja";
+    const paramBeans = parseInt(searchParams.get('beans') || '', 10);
+    const paramFlavor = searchParams.get('flavor');
+    const paramStrength = searchParams.get('strength');
+    const paramRoast = searchParams.get('roast');
+
+    if (paramLang && (paramLang === 'en' || paramLang === 'ja')) {
+      setLanguage(paramLang);
+    }
+    if (!isNaN(paramBeans)) {
+      setBeansAmount(paramBeans);
+    }
+    if (paramFlavor) {
+      setFlavor(paramFlavor);
+    }
+    if (paramStrength) {
+      setStrength(paramStrength);
+    }
+    if (paramRoast) {
+      setRoastLevel(paramRoast);
+    }
+  }, [searchParams]);
+  
   // Detect user's preferred language
   useEffect(() => {
+    const paramLang = searchParams.get('lang') as "en" | "ja";
+    if (paramLang) return;
     const userLang = navigator.language || navigator.languages[0];
     if (userLang.startsWith('ja')) {
       setLanguage('ja');
@@ -142,6 +184,17 @@ function App() {
     const newSteps = calculateSteps(beansAmount, flavor, strength);
     setSteps(newSteps);
   }, [beansAmount, flavor, strength]);
+
+  // Update URL query parameters when state changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set('lang', language);
+    params.set('beans', beansAmount.toString());
+    params.set('flavor', flavor);
+    params.set('strength', strength);
+    params.set('roast', roastLevel);
+    setSearchParams(params);
+  }, [language, beansAmount, flavor, strength, roastLevel, setSearchParams]);
 
   // Cleanup timer when component unmounts
   useEffect(() => {
@@ -244,4 +297,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppWrapper;
