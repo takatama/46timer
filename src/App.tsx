@@ -42,12 +42,47 @@ const getTheme = (mode: 'light' | 'dark') => createTheme({
   }
 });
 
+interface StaticTranslations {
+  title: string;
+  beansAmount: string;
+  waterVolume: string;
+  taste: string;
+  strength: string;
+  sweet: string;
+  balance: string;
+  sour: string;
+  light: string;
+  strong: string;
+  play: string;
+  pause: string;
+  reset: string;
+  language: string;
+  darkMode: string;
+  lightMode: string;
+  roastLevel: string;
+  lightRoast: string;
+  mediumRoast: string;
+  darkRoast: string;
+  waterTemp: string;
+}
+
+interface DynamicTranslations {
+  flavorPour1: (amount: number) => string;
+  flavorPour2: (amount: number) => string;
+  strengthPour1: (amount: number) => string;
+  strengthPour2: (amount: number) => string;
+  strengthPour3: (amount: number) => string;
+  finish: () => string;
+}
+
+type TranslationType = StaticTranslations & DynamicTranslations;
+
 // Add dark mode translations
-const translations: { [key: string]: { [key: string]: string } } = {
+const translations: Record<'en' | 'jp', TranslationType> = {
   en: {
     title: "4:6 Method Timer",
-    coffeeAmount: "Coffee Amount",
-    waterVolume: "Water Volume",
+    beansAmount: "Beans",
+    waterVolume: "Water",
     taste: "Taste",
     strength: "Strength",
     sweet: "Sweet",
@@ -58,24 +93,24 @@ const translations: { [key: string]: { [key: string]: string } } = {
     play: "Play",
     pause: "Pause",
     reset: "Reset",
-    flavorPour1: "Flavor pour 1",
-    flavorPour2: "Flavor pour 2",
-    strengthPour1: "Strength pour 1",
-    strengthPour2: "Strength pour 2",
-    strengthPour3: "Strength pour 3",
-    finish: "Finish",
+    flavorPour1: (amount: number) => `Pour up to ${amount}g`,
+    flavorPour2: (amount: number) => `Pour up to ${amount}g`,
+    strengthPour1: (amount: number) => `Pour up to ${amount}g`,
+    strengthPour2: (amount: number) => `Pour up to ${amount}g`,
+    strengthPour3: (amount: number) => `Pour up to ${amount}g`,
+    finish: () => "Finish",
     language: "Language",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
-    roastLevel: "Roast Level",
+    roastLevel: "Roast",
     lightRoast: "Light",
     mediumRoast: "Medium",
     darkRoast: "Dark",
-    waterTemp: "Water Temperature",
+    waterTemp: "Temp",
   },
   jp: {
     title: "4:6メソッド タイマー",
-    coffeeAmount: "豆の量",
+    beansAmount: "豆の量",
     waterVolume: "湯量",
     taste: "味",
     strength: "濃さ",
@@ -87,12 +122,12 @@ const translations: { [key: string]: { [key: string]: string } } = {
     play: "再生",
     pause: "一時停止",
     reset: "リセット",
-    flavorPour1: "味注ぎ1",
-    flavorPour2: "味注ぎ2",
-    strengthPour1: "濃さ注ぎ1",
-    strengthPour2: "濃さ注ぎ2",
-    strengthPour3: "濃さ注ぎ3",
-    finish: "完成",
+    flavorPour1: (amount: number) => `${amount}g まで注湯`,
+    flavorPour2: (amount: number) => `${amount}g まで注湯`,
+    strengthPour1: (amount: number) => `${amount}g まで注湯`,
+    strengthPour2: (amount: number) => `${amount}g まで注湯`,
+    strengthPour3: (amount: number) => `${amount}g まで注湯`,
+    finish: () => "完成",
     language: "言語",
     darkMode: "ダークモード",
     lightMode: "ライトモード",
@@ -104,10 +139,23 @@ const translations: { [key: string]: { [key: string]: string } } = {
   }
 };
 
+// Timeline constants
+const TIMELINE_CONSTANTS = {
+  CONTAINER_HEIGHT: 300,
+  TOTAL_TIME: 210,
+  MARKER_SIZE: 8,
+  ARROW_OFFSET: 45,
+  ARROW_HEIGHT: 14,
+  TIMELINE_LEFT_MARGIN: 80,
+  STEP_TEXT_MARGIN: 20,
+  FIRST_STEP_OFFSET: 5,
+  FONT_SIZE: '1.1rem' // default size of Typography variant="body2"
+} as const;
+
 // Function to calculate timer steps based on the 4:6 method
-function calculateSteps(coffeeAmount: number, flavor: string, strength: string) {
-  // Total water used = coffeeAmount * 15
-  const totalWater = coffeeAmount * 15;
+function calculateSteps(beansAmount: number, flavor: string, strength: string) {
+  // Total water used = beansAmount * 15
+  const totalWater = beansAmount * 15;
   const flavorWater = totalWater * 0.4;
   const strengthWater = totalWater * 0.6;
   let flavor1, flavor2;
@@ -131,7 +179,12 @@ function calculateSteps(coffeeAmount: number, flavor: string, strength: string) 
   } else {
     strengthSteps = 2;
   }
-  const steps = [];
+  const steps: Array<{
+    time: number;
+    pourAmount: number;
+    cumulative: number;
+    descriptionKey: keyof DynamicTranslations;
+  }> = [];
   // Flavor pours are fixed at 0s and 45s
   steps.push({
     time: 0,
@@ -165,7 +218,7 @@ function calculateSteps(coffeeAmount: number, flavor: string, strength: string) 
         time: t,
         pourAmount: strengthPourAmount,
         cumulative: cumulative,
-        descriptionKey: "strengthPour" + i
+        descriptionKey: `strengthPour${i}` as keyof DynamicTranslations
       });
     }
   }
@@ -183,7 +236,7 @@ function App() {
   // State variables for language, coffee parameters, and timer
   const [language, setLanguage] = useState<"en" | "jp">("en");
   const t = translations[language]; // shorthand for current translations
-  const [coffeeAmount, setCoffeeAmount] = useState(20);
+  const [beansAmount, setBeansAmount] = useState(20);
   const [flavor, setFlavor] = useState("balance");
   const [strength, setStrength] = useState("balance");
   const [currentTime, setCurrentTime] = useState(0);
@@ -195,7 +248,7 @@ function App() {
   const theme = getTheme(darkMode ? 'dark' : 'light');
   const [roastLevel, setRoastLevel] = useState("medium");
 
-  // 焙煎度に応じた温度を取得する関数
+  // Function to get temperature based on roast level
   const getWaterTemperature = (roast: string) => {
     switch (roast) {
       case "light": return 93;
@@ -206,9 +259,9 @@ function App() {
 
   // Recalculate steps whenever coffee parameters change
   useEffect(() => {
-    const newSteps = calculateSteps(coffeeAmount, flavor, strength);
+    const newSteps = calculateSteps(beansAmount, flavor, strength);
     setSteps(newSteps);
-  }, [coffeeAmount, flavor, strength]);
+  }, [beansAmount, flavor, strength]);
 
   // Cleanup timer when component unmounts
   useEffect(() => {
@@ -237,7 +290,7 @@ function App() {
     setTimerRunning(true);
     timerRef.current = setInterval(() => {
       setCurrentTime((prev) => prev + 1);
-    }, 1000);
+    }, 100);
   };
 
   // Pause the timer
@@ -266,18 +319,18 @@ function App() {
 
   // Calculate arrow position (for timeline progress)
   const getArrowTop = () => {
-    // The timeline container height is assumed to be 300px
-    const containerHeight = 300;
-    // Clamp currentTime to totalTime (210 seconds)
-    const clampedTime = Math.min(currentTime, 210);
-    // Calculate proportional position
-    // subtract half the arrow height (approx 12px)
-    return (clampedTime / 210) * containerHeight - 12 + 5;
+    const clampedTime = Math.min(currentTime, TIMELINE_CONSTANTS.TOTAL_TIME);
+    return (clampedTime / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT - TIMELINE_CONSTANTS.ARROW_HEIGHT + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
+  };
+
+  const getStepPosition = (time: number) => {
+    const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
+    return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="sm" sx={{ 
+      <Container maxWidth="sm" sx={{
         bgcolor: 'background.default',
         color: 'text.primary',
         minHeight: '100vh',
@@ -307,10 +360,16 @@ function App() {
         </Typography>
         {/* Input section as a table */}
         <Box sx={{ mb: 2 }}>
-          <Table>
+          <Table sx={{
+            '& td, & th': { fontSize: '1.1rem' },
+            '& .MuiTableCell-root': {
+              borderBottom: 'none',
+              padding: '10px 16px',
+            }
+          }}>
             <TableBody>
-            <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+              <TableRow>
+                <TableCell align="right">
                   {t.roastLevel}:
                 </TableCell>
                 <TableCell align="left">
@@ -319,6 +378,7 @@ function App() {
                     exclusive
                     onChange={(_e, newRoast) => { if (newRoast) setRoastLevel(newRoast); }}
                     size="small"
+                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
                   >
                     <ToggleButton value="light">{t.lightRoast}</ToggleButton>
                     <ToggleButton value="medium">{t.mediumRoast}</ToggleButton>
@@ -327,37 +387,37 @@ function App() {
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.waterTemp}:
                 </TableCell>
                 <TableCell align="left">
-                  <Typography component="span">{getWaterTemperature(roastLevel)}℃</Typography>
+                  {getWaterTemperature(roastLevel)}℃
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                  {t.coffeeAmount}:
+                <TableCell align="right">
+                  {t.beansAmount}:
                 </TableCell>
                 <TableCell align="left">
-                  <Button variant="outlined" onClick={() => setCoffeeAmount(coffeeAmount - 1)} disabled={coffeeAmount <= 1} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
+                  <Button variant="outlined" onClick={() => setBeansAmount(beansAmount - 1)} disabled={beansAmount <= 1} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
                     <RemoveIcon fontSize="small" />
                   </Button>
-                  <Box component="span" sx={{ mx: 1 }}>{coffeeAmount}g</Box>
-                  <Button variant="outlined" onClick={() => setCoffeeAmount(coffeeAmount + 1)} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
-                    <AddIcon fontSize='small'/>
+                  <Box component="span" sx={{ mx: 1 }}>{beansAmount}g</Box>
+                  <Button variant="outlined" onClick={() => setBeansAmount(beansAmount + 1)} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
+                    <AddIcon fontSize='small' />
                   </Button>
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.waterVolume}:
                 </TableCell>
                 <TableCell align="left">
-                  <Typography component="span">{coffeeAmount * 15}ml</Typography>
+                  {beansAmount * 15}ml
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.taste}:
                 </TableCell>
                 <TableCell align="left">
@@ -366,6 +426,7 @@ function App() {
                     exclusive
                     onChange={(_e, newFlavor) => { if (newFlavor) setFlavor(newFlavor); }}
                     size="small"
+                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
                   >
                     <ToggleButton value="sweet">{t.sweet}</ToggleButton>
                     <ToggleButton value="balance">{t.balance}</ToggleButton>
@@ -374,7 +435,7 @@ function App() {
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.strength}:
                 </TableCell>
                 <TableCell align="left">
@@ -383,6 +444,7 @@ function App() {
                     exclusive
                     onChange={(_e, newStrength) => { if (newStrength) setStrength(newStrength); }}
                     size="small"
+                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
                   >
                     <ToggleButton value="light">{t.light}</ToggleButton>
                     <ToggleButton value="balance">{t.balance}</ToggleButton>
@@ -411,18 +473,16 @@ function App() {
         <Box
           sx={{
             position: 'relative',
-            height: '300px',
-            borderLeft: '2px solid #ccc',
-            ml: '40px', // leave space for arrow
+            height: `${TIMELINE_CONSTANTS.CONTAINER_HEIGHT}px`,
+            borderLeft: '3px solid #ccc',
+            ml: `${TIMELINE_CONSTANTS.TIMELINE_LEFT_MARGIN}px`,
             mb: 4
           }}
         >
           {/* Render each step using absolute positioning */}
           {steps.map((step, index) => {
             // Calculate top position (with 0:00 fixed at 5px, others with +5px offset)
-            const containerHeight = 300;
-            let topPos = (step.time / 210) * containerHeight;
-            topPos = step.time === 0 ? 5 : topPos + 5;
+            const topPos = getStepPosition(step.time);
             return (
               <Box
                 key={index}
@@ -438,11 +498,11 @@ function App() {
                 <Box
                   sx={{
                     position: 'absolute',
-                    left: 0,
+                    left: -1,
                     top: '50%',
-                    width: '8px',
-                    height: '8px',
-                    bgcolor: 'black',
+                    width: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
+                    height: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
+                    bgcolor: darkMode ? 'white' : 'black',
                     borderRadius: '50%',
                     transform: 'translate(-50%, -50%)'
                   }}
@@ -452,12 +512,12 @@ function App() {
                 <Typography
                   variant="body2"
                   sx={{
-                    ml: '20px',
-                    textDecoration: currentTime > step.time ? 'underline' : 'none'
+                    ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
+                    fontSize: TIMELINE_CONSTANTS.FONT_SIZE
                   }}
                   className="step-text"
                 >
-                  {formatTime(step.time)} {t[step.descriptionKey]} ({Math.round(step.cumulative)}ml)
+                  {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
                 </Typography>
               </Box>
             );
@@ -468,16 +528,16 @@ function App() {
             id="arrowContainer"
             sx={{
               position: 'absolute',
-              left: '-41px',
+              left: `-${TIMELINE_CONSTANTS.ARROW_OFFSET}px`,
               top: `${getArrowTop()}px`,
               display: 'flex',
               alignItems: 'center'
             }}
           >
-            <Typography variant="body1" className="time-display">
+            <Typography variant="body1" className="time-display" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>
               {formatTime(currentTime)}
             </Typography>
-            <Typography variant="body1" className="arrow-icon">▼</Typography>
+            <Typography variant="body1" className="arrow-icon" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>▼</Typography>
           </Box>
         </Box>
       </Container>
