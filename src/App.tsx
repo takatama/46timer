@@ -113,7 +113,7 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
 
 function App() {
   // State variables for language, coffee parameters, and timer
-  const [language, setLanguage] = useState<"en" | "jp">("en");
+  const [language, setLanguage] = useState<"en" | "ja">("en");
   const t = translations[language]; // shorthand for current translations
   const [beansAmount, setBeansAmount] = useState(20);
   const [flavor, setFlavor] = useState("balance");
@@ -174,7 +174,7 @@ function App() {
   };
 
   // Handler for language toggle
-  const handleLanguageChange = (_e: React.MouseEvent<HTMLElement>, newLang: "en" | "jp") => {
+  const handleLanguageChange = (_e: React.MouseEvent<HTMLElement>, newLang: "en" | "ja") => {
     if (newLang) {
       setLanguage(newLang);
     }
