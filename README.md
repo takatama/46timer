@@ -1,50 +1,42 @@
-# React + TypeScript + Vite
+# 46timer - Perfect Coffee with the 4:6 Method
+Discover the art of perfect coffee brewing with the 4:6 method! This elegant web-based timer guides you through each step of the process, helping you craft your ideal cup of coffee. Whether you're a coffee enthusiast or just starting your brewing journey, 46timer makes it simple to achieve professional-level results.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Customize your brew by selecting your preferred bean roast, coffee amount, and desired taste profile. The intuitive interface with blinking arrows guides your pours with precision timing and exact water measurements. No more guesswork – just consistently delicious coffee, every single time.
 
-Currently, two official plugins are available:
+## Usage
+1. Get your coffee gear ready :coffee:
+2. Visit [46timer](https://46timer.pages.dev/) and customize your brew:
+  - Choose bean roast level
+  - Set coffee amount
+  - Select desired taste and strength
+3. Review your personalized brewing steps
+4. Hit `Play` to start brewing
+5. Follow the blinking arrow - it guides you through each pour with precise timing and water amounts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Start brewing the perfect cup today!
 
-## Expanding the ESLint configuration
+## Key Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+**Smart Calculations**
+- Automatic step calculations based on preferences
+- Precise water measurements for each pour
+- Optimized for 3:30 total brew time
 
-- Configure the top-level `parserOptions` property like this:
+**Intuitive Brewing Guide**
+- Visual timeline with proportional step spacing
+- Real-time guidance with clear indicators
+- Blinking arrows for precise pour timing
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+**Perfect Your Technique**
+- Learn optimal grind size through visual feedback
+- Track brewing progress in real-time
+- Fine-tune your process for consistent results
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Tips
+- Start with a coarse grind - the 4:6 method requires all water to drain within 3:30
+- Use the visual timeline to gauge if your grind size needs adjustment
+- If water isn't draining fast enough, adjust to a coarser grind
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Technologies
+- React, React Router, Material-UI
+- Cloudflare Pages
