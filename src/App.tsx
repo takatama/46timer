@@ -42,8 +42,43 @@ const getTheme = (mode: 'light' | 'dark') => createTheme({
   }
 });
 
+interface StaticTranslations {
+  title: string;
+  beansAmount: string;
+  waterVolume: string;
+  taste: string;
+  strength: string;
+  sweet: string;
+  balance: string;
+  sour: string;
+  light: string;
+  strong: string;
+  play: string;
+  pause: string;
+  reset: string;
+  language: string;
+  darkMode: string;
+  lightMode: string;
+  roastLevel: string;
+  lightRoast: string;
+  mediumRoast: string;
+  darkRoast: string;
+  waterTemp: string;
+}
+
+interface DynamicTranslations {
+  flavorPour1: (amount: number) => string;
+  flavorPour2: (amount: number) => string;
+  strengthPour1: (amount: number) => string;
+  strengthPour2: (amount: number) => string;
+  strengthPour3: (amount: number) => string;
+  finish: () => string;
+}
+
+type TranslationType = StaticTranslations & DynamicTranslations;
+
 // Add dark mode translations
-const translations: { [key: string]: { [key: string]: string } } = {
+const translations: Record<'en' | 'jp', TranslationType> = {
   en: {
     title: "4:6 Method Timer",
     beansAmount: "Beans",
@@ -58,12 +93,12 @@ const translations: { [key: string]: { [key: string]: string } } = {
     play: "Play",
     pause: "Pause",
     reset: "Reset",
-    flavorPour1: "Flavor pour 1",
-    flavorPour2: "Flavor pour 2",
-    strengthPour1: "Strength pour 1",
-    strengthPour2: "Strength pour 2",
-    strengthPour3: "Strength pour 3",
-    finish: "Finish",
+    flavorPour1: (amount: number) => `Pour up to ${amount}g`,
+    flavorPour2: (amount: number) => `Pour up to ${amount}g`,
+    strengthPour1: (amount: number) => `Pour up to ${amount}g`,
+    strengthPour2: (amount: number) => `Pour up to ${amount}g`,
+    strengthPour3: (amount: number) => `Pour up to ${amount}g`,
+    finish: () => "Finish",
     language: "Language",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
@@ -87,12 +122,12 @@ const translations: { [key: string]: { [key: string]: string } } = {
     play: "再生",
     pause: "一時停止",
     reset: "リセット",
-    flavorPour1: "味注ぎ1",
-    flavorPour2: "味注ぎ2",
-    strengthPour1: "濃さ注ぎ1",
-    strengthPour2: "濃さ注ぎ2",
-    strengthPour3: "濃さ注ぎ3",
-    finish: "完成",
+    flavorPour1: (amount: number) => `${amount}g まで注湯`,
+    flavorPour2: (amount: number) => `${amount}g まで注湯`,
+    strengthPour1: (amount: number) => `${amount}g まで注湯`,
+    strengthPour2: (amount: number) => `${amount}g まで注湯`,
+    strengthPour3: (amount: number) => `${amount}g まで注湯`,
+    finish: () => "完成",
     language: "言語",
     darkMode: "ダークモード",
     lightMode: "ライトモード",
@@ -111,7 +146,7 @@ const TIMELINE_CONSTANTS = {
   MARKER_SIZE: 8,
   ARROW_OFFSET: 45,
   ARROW_HEIGHT: 14,
-  TIMELINE_LEFT_MARGIN: 60,
+  TIMELINE_LEFT_MARGIN: 80,
   STEP_TEXT_MARGIN: 20,
   FIRST_STEP_OFFSET: 5,
   FONT_SIZE: '1.1rem' // default size of Typography variant="body2"
@@ -144,7 +179,12 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
   } else {
     strengthSteps = 2;
   }
-  const steps = [];
+  const steps: Array<{
+    time: number;
+    pourAmount: number;
+    cumulative: number;
+    descriptionKey: keyof DynamicTranslations;
+  }> = [];
   // Flavor pours are fixed at 0s and 45s
   steps.push({
     time: 0,
@@ -178,7 +218,7 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
         time: t,
         pourAmount: strengthPourAmount,
         cumulative: cumulative,
-        descriptionKey: "strengthPour" + i
+        descriptionKey: `strengthPour${i}` as keyof DynamicTranslations
       });
     }
   }
@@ -473,12 +513,11 @@ function App() {
                   variant="body2"
                   sx={{
                     ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
-                    textDecoration: currentTime > step.time ? 'underline' : 'none',
                     fontSize: TIMELINE_CONSTANTS.FONT_SIZE
                   }}
                   className="step-text"
                 >
-                  {formatTime(step.time)} {t[step.descriptionKey]} ({Math.round(step.cumulative)}ml)
+                  {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
                 </Typography>
               </Box>
             );
