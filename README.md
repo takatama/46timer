@@ -3,6 +3,9 @@ Discover the art of perfect coffee brewing with the 4:6 method! This elegant web
 
 Customize your brew by selecting your preferred bean roast, coffee amount, and desired taste profile. The intuitive interface with blinking arrows guides your pours with precision timing and exact water measurements. No more guesswork – just consistently delicious coffee, every single time.
 
+## 4:6 Method
+The 4:6 method is a coffee brewing technique developed by World Brewers Cup Champion Tetsu Kasuya. It involves dividing the water into two parts: 40% for the first two pours and 60% for the last three pours. This method allows you to control the strength and taste of your coffee by adjusting the amount of water in each pour.
+
 ## Usage
 1. Get your coffee gear ready :coffee:
 2. Visit [46timer](https://46timer.pages.dev/) and customize your brew:
@@ -37,6 +40,25 @@ Start brewing the perfect cup today!
 - Use the visual timeline to gauge if your grind size needs adjustment
 - If water isn't draining fast enough, adjust to a coarser grind
 
-## Technologies
+# Development
+
+## Technologies Used
 - React, React Router, Material-UI
+- Vite, TypeScript
 - Cloudflare Pages
+
+## Local Development
+1. Clone the repository
+2. Install dependencies with `npm install`
+3. Start the development server with `npm run dev`
+4. Open [http://localhost:5173](http://localhost:5173) in your browser
+
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request to suggest changes or improvements.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+- [Tetsu Kasuya](https://www.instagram.com/tetsukasuya/) for creating the 4:6 method
+- [Cloudflare](https://pages.cloudflare.com/) for hosting
