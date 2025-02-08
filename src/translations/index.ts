@@ -8,7 +8,7 @@ export const translations: Record<'en' | 'ja', TranslationType> = {
     taste: "Taste",
     strength: "Strength",
     sweet: "Sweet",
-    middle: "Mid",
+    middle: "Middle",
     medium: "Med",
     sour: "Sour",
     light: "Light",
