@@ -307,10 +307,10 @@ function App() {
         </Typography>
         {/* Input section as a table */}
         <Box sx={{ mb: 2 }}>
-          <Table>
+          <Table sx={{ '& td, & th': { fontSize: '1.1rem' } }}>
             <TableBody>
             <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.roastLevel}:
                 </TableCell>
                 <TableCell align="left">
@@ -319,6 +319,7 @@ function App() {
                     exclusive
                     onChange={(_e, newRoast) => { if (newRoast) setRoastLevel(newRoast); }}
                     size="small"
+                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
                   >
                     <ToggleButton value="light">{t.lightRoast}</ToggleButton>
                     <ToggleButton value="medium">{t.mediumRoast}</ToggleButton>
@@ -327,15 +328,15 @@ function App() {
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.waterTemp}:
                 </TableCell>
                 <TableCell align="left">
-                  <Typography component="span">{getWaterTemperature(roastLevel)}℃</Typography>
+                  {getWaterTemperature(roastLevel)}℃
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.coffeeAmount}:
                 </TableCell>
                 <TableCell align="left">
@@ -349,15 +350,15 @@ function App() {
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.waterVolume}:
                 </TableCell>
                 <TableCell align="left">
-                  <Typography component="span">{coffeeAmount * 15}ml</Typography>
+                  {coffeeAmount * 15}ml
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.taste}:
                 </TableCell>
                 <TableCell align="left">
@@ -366,6 +367,7 @@ function App() {
                     exclusive
                     onChange={(_e, newFlavor) => { if (newFlavor) setFlavor(newFlavor); }}
                     size="small"
+                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
                   >
                     <ToggleButton value="sweet">{t.sweet}</ToggleButton>
                     <ToggleButton value="balance">{t.balance}</ToggleButton>
@@ -374,7 +376,7 @@ function App() {
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                <TableCell align="right">
                   {t.strength}:
                 </TableCell>
                 <TableCell align="left">
@@ -383,6 +385,7 @@ function App() {
                     exclusive
                     onChange={(_e, newStrength) => { if (newStrength) setStrength(newStrength); }}
                     size="small"
+                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
                   >
                     <ToggleButton value="light">{t.light}</ToggleButton>
                     <ToggleButton value="balance">{t.balance}</ToggleButton>
