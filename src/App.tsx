@@ -46,8 +46,8 @@ const getTheme = (mode: 'light' | 'dark') => createTheme({
 const translations: { [key: string]: { [key: string]: string } } = {
   en: {
     title: "4:6 Method Timer",
-    coffeeAmount: "Coffee Amount",
-    waterVolume: "Water Volume",
+    beansAmount: "Beans",
+    waterVolume: "Water",
     taste: "Taste",
     strength: "Strength",
     sweet: "Sweet",
@@ -67,15 +67,15 @@ const translations: { [key: string]: { [key: string]: string } } = {
     language: "Language",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
-    roastLevel: "Roast Level",
+    roastLevel: "Roast",
     lightRoast: "Light",
     mediumRoast: "Medium",
     darkRoast: "Dark",
-    waterTemp: "Water Temperature",
+    waterTemp: "Temp",
   },
   jp: {
     title: "4:6メソッド タイマー",
-    coffeeAmount: "豆の量",
+    beansAmount: "豆の量",
     waterVolume: "湯量",
     taste: "味",
     strength: "濃さ",
@@ -105,9 +105,9 @@ const translations: { [key: string]: { [key: string]: string } } = {
 };
 
 // Function to calculate timer steps based on the 4:6 method
-function calculateSteps(coffeeAmount: number, flavor: string, strength: string) {
-  // Total water used = coffeeAmount * 15
-  const totalWater = coffeeAmount * 15;
+function calculateSteps(beansAmount: number, flavor: string, strength: string) {
+  // Total water used = beansAmount * 15
+  const totalWater = beansAmount * 15;
   const flavorWater = totalWater * 0.4;
   const strengthWater = totalWater * 0.6;
   let flavor1, flavor2;
@@ -183,7 +183,7 @@ function App() {
   // State variables for language, coffee parameters, and timer
   const [language, setLanguage] = useState<"en" | "jp">("en");
   const t = translations[language]; // shorthand for current translations
-  const [coffeeAmount, setCoffeeAmount] = useState(20);
+  const [beansAmount, setBeansAmount] = useState(20);
   const [flavor, setFlavor] = useState("balance");
   const [strength, setStrength] = useState("balance");
   const [currentTime, setCurrentTime] = useState(0);
@@ -206,9 +206,9 @@ function App() {
 
   // Recalculate steps whenever coffee parameters change
   useEffect(() => {
-    const newSteps = calculateSteps(coffeeAmount, flavor, strength);
+    const newSteps = calculateSteps(beansAmount, flavor, strength);
     setSteps(newSteps);
-  }, [coffeeAmount, flavor, strength]);
+  }, [beansAmount, flavor, strength]);
 
   // Cleanup timer when component unmounts
   useEffect(() => {
@@ -277,7 +277,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="sm" sx={{ 
+      <Container maxWidth="sm" sx={{
         bgcolor: 'background.default',
         color: 'text.primary',
         minHeight: '100vh',
@@ -307,9 +307,15 @@ function App() {
         </Typography>
         {/* Input section as a table */}
         <Box sx={{ mb: 2 }}>
-          <Table sx={{ '& td, & th': { fontSize: '1.1rem' } }}>
+          <Table sx={{
+            '& td, & th': { fontSize: '1.1rem' },
+            '& .MuiTableCell-root': {
+              borderBottom: 'none',
+              padding: '10px 16px',
+            }
+          }}>
             <TableBody>
-            <TableRow>
+              <TableRow>
                 <TableCell align="right">
                   {t.roastLevel}:
                 </TableCell>
@@ -337,15 +343,15 @@ function App() {
               </TableRow>
               <TableRow>
                 <TableCell align="right">
-                  {t.coffeeAmount}:
+                  {t.beansAmount}:
                 </TableCell>
                 <TableCell align="left">
-                  <Button variant="outlined" onClick={() => setCoffeeAmount(coffeeAmount - 1)} disabled={coffeeAmount <= 1} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
+                  <Button variant="outlined" onClick={() => setBeansAmount(beansAmount - 1)} disabled={beansAmount <= 1} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
                     <RemoveIcon fontSize="small" />
                   </Button>
-                  <Box component="span" sx={{ mx: 1 }}>{coffeeAmount}g</Box>
-                  <Button variant="outlined" onClick={() => setCoffeeAmount(coffeeAmount + 1)} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
-                    <AddIcon fontSize='small'/>
+                  <Box component="span" sx={{ mx: 1 }}>{beansAmount}g</Box>
+                  <Button variant="outlined" onClick={() => setBeansAmount(beansAmount + 1)} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
+                    <AddIcon fontSize='small' />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -354,7 +360,7 @@ function App() {
                   {t.waterVolume}:
                 </TableCell>
                 <TableCell align="left">
-                  {coffeeAmount * 15}ml
+                  {beansAmount * 15}ml
                 </TableCell>
               </TableRow>
               <TableRow>
