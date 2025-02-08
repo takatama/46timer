@@ -50,7 +50,8 @@ const Settings: React.FC<SettingsProps> = ({
       '& .MuiTableCell-root': {
         borderBottom: 'none',
         padding: '10px 16px',
-      }
+      },
+      mb: 2,
     }}>
       <TableBody>
         <TableRow>

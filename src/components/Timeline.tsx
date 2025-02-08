@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Step, TranslationType, DynamicTranslations } from '../types';
 
@@ -7,6 +7,7 @@ interface TimelineProps {
   steps: Step[];
   currentTime: number;
   darkMode: boolean;
+  setSteps: React.Dispatch<React.SetStateAction<Step[]>>;
 }
 
 const TIMELINE_CONSTANTS = {
@@ -21,22 +22,45 @@ const TIMELINE_CONSTANTS = {
   FONT_SIZE: '1.1rem'
 } as const;
 
-const Timeline: React.FC<TimelineProps> = ({ t, steps, currentTime, darkMode }) => {
+const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode }) => {
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return m + ":" + (s < 10 ? "0" + s : s);
   };
 
+  // Calculate arrow position (for timeline progress)
   const getArrowTop = () => {
     const clampedTime = Math.min(currentTime, TIMELINE_CONSTANTS.TOTAL_TIME);
     return (clampedTime / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT - TIMELINE_CONSTANTS.ARROW_HEIGHT + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
   };
 
+  // Add function to update step statuses
   const getStepPosition = (time: number) => {
     const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
     return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
   };
+
+  // Add function to update step statuses
+  const updateStepStatuses = (currentTimeValue: number) => {
+    setSteps(prevSteps => prevSteps.map((step, index) => {
+      if (currentTimeValue >= step.time && (index === prevSteps.length - 1 || currentTimeValue < prevSteps[index + 1].time)) {
+        return { ...step, status: 'current' };
+      }
+      if (currentTimeValue >= step.time) {
+        return { ...step, status: 'completed' };
+      }
+      if (currentTimeValue >= step.time - 5 && currentTimeValue < step.time) {
+        return { ...step, status: 'next' };
+      }
+      return { ...step, status: 'upcoming' };
+    }));
+  };
+
+  // Update useEffect for timer
+  useEffect(() => {
+    updateStepStatuses(currentTime);
+  }, [currentTime]);
 
   return (
     <Box

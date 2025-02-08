@@ -14,7 +14,7 @@ interface ControlsProps {
 
 const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset }) => {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
       <Button variant="contained" color="primary" onClick={onPlay} sx={{ mr: 1 }} startIcon={<PlayArrowIcon />}>
         {t.play}
       </Button>

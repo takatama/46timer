@@ -9,6 +9,7 @@ import Controls from './components/Controls';
 import Timeline from './components/Timeline';
 import Footer from './components/Footer';
 import './App.css';
+import { translations } from './translations/index'
 
 // Create theme with both light and dark modes
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -29,125 +30,6 @@ const getTheme = (mode: 'light' | 'dark') => createTheme({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
   }
 });
-
-interface StaticTranslations {
-  title: string;
-  beansAmount: string;
-  waterVolume: string;
-  taste: string;
-  strength: string;
-  sweet: string;
-  balance: string;
-  sour: string;
-  light: string;
-  strong: string;
-  play: string;
-  pause: string;
-  reset: string;
-  language: string;
-  darkMode: string;
-  lightMode: string;
-  roastLevel: string;
-  lightRoast: string;
-  mediumRoast: string;
-  darkRoast: string;
-  waterTemp: string;
-  footerMethodBy: string;
-  footerMethodVideo: string;
-  footerCreatedBy: string;
-}
-
-interface DynamicTranslations {
-  flavorPour1: (amount: number) => string;
-  flavorPour2: (amount: number) => string;
-  strengthPour1: (amount: number) => string;
-  strengthPour2: (amount: number) => string;
-  strengthPour3: (amount: number) => string;
-  finish: () => string;
-}
-
-type TranslationType = StaticTranslations & DynamicTranslations;
-
-// Add dark mode translations
-const translations: Record<'en' | 'jp', TranslationType> = {
-  en: {
-    title: "4:6 Method Timer",
-    beansAmount: "Beans",
-    waterVolume: "Water",
-    taste: "Taste",
-    strength: "Strength",
-    sweet: "Sweet",
-    balance: "Balance",
-    sour: "Sour",
-    light: "Light",
-    strong: "Strong",
-    play: "Play",
-    pause: "Pause",
-    reset: "Reset",
-    flavorPour1: (amount: number) => `Pour up to ${amount}g`,
-    flavorPour2: (amount: number) => `Pour up to ${amount}g`,
-    strengthPour1: (amount: number) => `Pour up to ${amount}g`,
-    strengthPour2: (amount: number) => `Pour up to ${amount}g`,
-    strengthPour3: (amount: number) => `Pour up to ${amount}g`,
-    finish: () => "Finish",
-    language: "Language",
-    darkMode: "Dark Mode",
-    lightMode: "Light Mode",
-    roastLevel: "Roast",
-    lightRoast: "Light",
-    mediumRoast: "Medium",
-    darkRoast: "Dark",
-    waterTemp: "Temp",
-    footerMethodBy: "The 4:6 method was created by Tetsu Kasuya",
-    footerMethodVideo: "Method video",
-    footerCreatedBy: "Created by Hirokazu Takatama",
-  },
-  jp: {
-    title: "4:6メソッド タイマー",
-    beansAmount: "豆の量",
-    waterVolume: "湯量",
-    taste: "味",
-    strength: "濃さ",
-    sweet: "甘味",
-    balance: "バランス",
-    sour: "酸味",
-    light: "薄い",
-    strong: "濃い",
-    play: "再生",
-    pause: "一時停止",
-    reset: "リセット",
-    flavorPour1: (amount: number) => `${amount}g まで注湯`,
-    flavorPour2: (amount: number) => `${amount}g まで注湯`,
-    strengthPour1: (amount: number) => `${amount}g まで注湯`,
-    strengthPour2: (amount: number) => `${amount}g まで注湯`,
-    strengthPour3: (amount: number) => `${amount}g まで注湯`,
-    finish: () => "完成",
-    language: "言語",
-    darkMode: "ダークモード",
-    lightMode: "ライトモード",
-    roastLevel: "焙煎度",
-    lightRoast: "浅煎り",
-    mediumRoast: "中煎り",
-    darkRoast: "深煎り",
-    waterTemp: "湯温",
-    footerMethodBy: "4:6メソッドは粕谷哲氏によって考案されました",
-    footerMethodVideo: "メソッド解説動画",
-    footerCreatedBy: "Created by Hirokazu Takatama",
-  }
-};
-
-// Timeline constants
-const TIMELINE_CONSTANTS = {
-  CONTAINER_HEIGHT: 300,
-  TOTAL_TIME: 210,
-  MARKER_SIZE: 8,
-  ARROW_OFFSET: 45,
-  ARROW_HEIGHT: 14,
-  TIMELINE_LEFT_MARGIN: 80,
-  STEP_TEXT_MARGIN: 20,
-  FIRST_STEP_OFFSET: 5,
-  FONT_SIZE: '1.1rem' // default size of Typography variant="body2"
-} as const;
 
 // Function to calculate timer steps based on the 4:6 method
 function calculateSteps(beansAmount: number, flavor: string, strength: string) {
@@ -320,38 +202,6 @@ function App() {
     }
   };
 
-  // Calculate arrow position (for timeline progress)
-  const getArrowTop = () => {
-    const clampedTime = Math.min(currentTime, TIMELINE_CONSTANTS.TOTAL_TIME);
-    return (clampedTime / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT - TIMELINE_CONSTANTS.ARROW_HEIGHT + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
-  };
-
-  const getStepPosition = (time: number) => {
-    const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
-    return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
-  };
-
-  // Add function to update step statuses
-  const updateStepStatuses = (currentTimeValue: number) => {
-    setSteps(prevSteps => prevSteps.map((step, index) => {
-      if (currentTimeValue >= step.time && (index === prevSteps.length - 1 || currentTimeValue < prevSteps[index + 1].time)) {
-        return { ...step, status: 'current' };
-      }
-      if (currentTimeValue >= step.time) {
-        return { ...step, status: 'completed' };
-      }
-      if (currentTimeValue >= step.time - 5 && currentTimeValue < step.time) {
-        return { ...step, status: 'next' };
-      }
-      return { ...step, status: 'upcoming' };
-    }));
-  };
-
-  // Update useEffect for timer
-  useEffect(() => {
-    updateStepStatuses(currentTime);
-  }, [currentTime]);
-
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="sm" sx={{
@@ -361,11 +211,25 @@ function App() {
         py: 2,
         width: '412px',
       }}>
-        {/* ヘッダー部分 */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
-          {/* ...ダークモードと言語切り替え... */}
+          <IconButton
+            onClick={() => setDarkMode(!darkMode)}
+            color="inherit"
+            title={darkMode ? t.lightMode : t.darkMode}
+          >
+            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+          <ToggleButtonGroup
+            value={language}
+            exclusive
+            onChange={handleLanguageChange}
+            size="small"
+          >
+            <ToggleButton value="en">EN</ToggleButton>
+            <ToggleButton value="jp">JP</ToggleButton>
+          </ToggleButtonGroup>
         </Box>
-        
+
         <Typography variant="h5" align="center" gutterBottom>
           {t.title}
         </Typography>
@@ -392,6 +256,7 @@ function App() {
         <Timeline
           t={t}
           steps={steps}
+          setSteps={setSteps}
           currentTime={currentTime}
           darkMode={darkMode}
         />
