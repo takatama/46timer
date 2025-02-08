@@ -21,6 +21,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { Link } from '@mui/material';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import YouTubeIcon from '@mui/icons-material/YouTube';
 
 // Create theme with both light and dark modes
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -64,6 +68,9 @@ interface StaticTranslations {
   mediumRoast: string;
   darkRoast: string;
   waterTemp: string;
+  footerMethodBy: string;
+  footerMethodVideo: string;
+  footerCreatedBy: string;
 }
 
 interface DynamicTranslations {
@@ -107,6 +114,9 @@ const translations: Record<'en' | 'jp', TranslationType> = {
     mediumRoast: "Medium",
     darkRoast: "Dark",
     waterTemp: "Temp",
+    footerMethodBy: "The 4:6 method was created by Tetsu Kasuya",
+    footerMethodVideo: "Method video",
+    footerCreatedBy: "Created by Hirokazu Takatama",
   },
   jp: {
     title: "4:6メソッド タイマー",
@@ -136,6 +146,9 @@ const translations: Record<'en' | 'jp', TranslationType> = {
     mediumRoast: "中煎り",
     darkRoast: "深煎り",
     waterTemp: "湯温",
+    footerMethodBy: "4:6メソッドは粕谷哲氏によって考案されました",
+    footerMethodVideo: "メソッド解説動画",
+    footerCreatedBy: "Created by Hirokazu Takatama",
   }
 };
 
@@ -539,6 +552,54 @@ function App() {
               {formatTime(currentTime)}
             </Typography>
             <Typography variant="body1" className="arrow-icon" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>▼</Typography>
+          </Box>
+        </Box>
+        <Box sx={{
+          mt: 'auto',
+          pt: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          textAlign: 'center'
+        }}>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {t.footerMethodBy}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Link
+              href={'https://www.youtube.com/watch?v=lJNPp-onikk'}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center' }}
+            >
+              <YouTubeIcon fontSize="small" />
+              {t.footerMethodVideo}
+            </Link>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {t.footerCreatedBy}
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1 }}>
+            <Link
+              href="https://github.com/takatama/46timer"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+            >
+              <GitHubIcon fontSize="small" />
+              46timer
+            </Link>
+            <Link
+              href="https://x.com/takatama_jp"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+            >
+              <TwitterIcon fontSize="small" />
+              @takatama_jp
+            </Link>
           </Box>
         </Box>
       </Container>
