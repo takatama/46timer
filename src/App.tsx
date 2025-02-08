@@ -290,7 +290,7 @@ function App() {
     setTimerRunning(true);
     timerRef.current = setInterval(() => {
       setCurrentTime((prev) => prev + 1);
-    }, 100);
+    }, 1000);
   };
 
   // Pause the timer
@@ -334,7 +334,8 @@ function App() {
         bgcolor: 'background.default',
         color: 'text.primary',
         minHeight: '100vh',
-        py: 2
+        py: 2,
+        width: '412px',
       }}>
         {/* Language and dark mode toggles */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
