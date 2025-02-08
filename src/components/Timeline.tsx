@@ -10,17 +10,16 @@ interface TimelineProps {
   setSteps: React.Dispatch<React.SetStateAction<Step[]>>;
 }
 
-const TIMELINE_CONSTANTS = {
-  CONTAINER_HEIGHT: 300,
-  TOTAL_TIME: 210,
-  MARKER_SIZE: 8,
-  ARROW_OFFSET: 45,
-  ARROW_HEIGHT: 14,
-  TIMELINE_LEFT_MARGIN: 80,
-  STEP_TEXT_MARGIN: 20,
-  FIRST_STEP_OFFSET: 5,
-  FONT_SIZE: '1.1rem'
-} as const;
+const CONTAINER_HEIGHT = 300;
+const TOTAL_TIME = 210;
+const MARKER_SIZE = 8;
+const ARROW_OFFSET = 45;
+const ARROW_HEIGHT = 14;
+const TIMELINE_LEFT_MARGIN = 80;
+const STEP_TEXT_MARGIN = 20;
+const FIRST_STEP_OFFSET = 5;
+const FONT_SIZE = '1.1rem';
+const INDICATE_NEXT_STEP_SEC = 3;
 
 const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode }) => {
   const formatTime = (seconds: number) => {
@@ -31,14 +30,14 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
 
   // Calculate arrow position (for timeline progress)
   const getArrowTop = () => {
-    const clampedTime = Math.min(currentTime, TIMELINE_CONSTANTS.TOTAL_TIME);
-    return (clampedTime / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT - TIMELINE_CONSTANTS.ARROW_HEIGHT + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
+    const clampedTime = Math.min(currentTime, TOTAL_TIME);
+    return (clampedTime / TOTAL_TIME) * CONTAINER_HEIGHT - ARROW_HEIGHT + FIRST_STEP_OFFSET;
   };
 
   // Add function to update step statuses
   const getStepPosition = (time: number) => {
-    const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
-    return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
+    const topPos = (time / TOTAL_TIME) * CONTAINER_HEIGHT;
+    return time === 0 ? FIRST_STEP_OFFSET : topPos + FIRST_STEP_OFFSET;
   };
 
   // Add function to update step statuses
@@ -50,7 +49,7 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
       if (currentTimeValue >= step.time) {
         return { ...step, status: 'completed' };
       }
-      if (currentTimeValue >= step.time - 5 && currentTimeValue < step.time) {
+      if (currentTimeValue >= step.time - INDICATE_NEXT_STEP_SEC && currentTimeValue < step.time) {
         return { ...step, status: 'next' };
       }
       return { ...step, status: 'upcoming' };
@@ -66,9 +65,9 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
     <Box
       sx={{
         position: 'relative',
-        height: `${TIMELINE_CONSTANTS.CONTAINER_HEIGHT}px`,
+        height: `${CONTAINER_HEIGHT}px`,
         borderLeft: '3px solid #ccc',
-        ml: `${TIMELINE_CONSTANTS.TIMELINE_LEFT_MARGIN}px`,
+        ml: `${TIMELINE_LEFT_MARGIN}px`,
         mb: 4
       }}
     >
@@ -92,8 +91,8 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
                 position: 'absolute',
                 left: -1,
                 top: '50%',
-                width: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
-                height: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
+                width: `${MARKER_SIZE}px`,
+                height: `${MARKER_SIZE}px`,
                 bgcolor: darkMode ? 'white' : 'black',
                 borderRadius: '50%',
                 transform: 'translate(-50%, -50%)'
@@ -103,15 +102,14 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
             <Typography
               variant="body2"
               sx={{
-                ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
-                fontSize: TIMELINE_CONSTANTS.FONT_SIZE,
-                fontWeight: step.status === 'current' ? 'bold' : 'normal',
-                textDecoration: step.status === 'completed' ? 'line-through' : 'none',
-                color: step.status === 'next'
-                  ? 'primary.main'
-                  : step.status === 'completed'
-                    ? 'text.secondary'  // Completed steps are grayed out
-                    : 'text.primary',   // Current and upcoming steps are black
+              ml: `${STEP_TEXT_MARGIN}px`,
+              fontSize: FONT_SIZE,
+              ...{
+                current: { fontWeight: 'bold' },
+                next: { fontWeight: 'bold', color: 'primary.main' },
+                completed: { textDecoration: 'line-through', color: 'text.secondary' },
+                upcoming: { color: 'text.primary' }
+              }[step.status]
               }}
             >
               {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
@@ -124,18 +122,18 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
         id="arrowContainer"
         sx={{
           position: 'absolute',
-          left: `-${TIMELINE_CONSTANTS.ARROW_OFFSET}px`,
+          left: `-${ARROW_OFFSET}px`,
           top: `${getArrowTop()}px`,
           display: 'flex',
           alignItems: 'center'
         }}
       >
-        <Typography variant="body1" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>
+        <Typography variant="body1" sx={{ fontSize: FONT_SIZE }}>
           {formatTime(currentTime)}
         </Typography>
         <Typography
           variant="body1"
-          sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}
+          sx={{ fontSize: FONT_SIZE }}
           className="blinking"
         >▼</Typography>
       </Box>
