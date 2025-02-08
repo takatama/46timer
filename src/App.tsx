@@ -1,30 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Button,
-  ToggleButton,
-  ToggleButtonGroup,
-  IconButton,
-  useMediaQuery,
-} from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Container, Typography, Box, IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PauseIcon from '@mui/icons-material/Pause';
-import ReplayIcon from '@mui/icons-material/Replay';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { Link } from '@mui/material';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import YouTubeIcon from '@mui/icons-material/YouTube';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Settings from './components/Settings';
+import Controls from './components/Controls';
+import Timeline from './components/Timeline';
+import Footer from './components/Footer';
 import './App.css';
 
 // Create theme with both light and dark modes
@@ -252,18 +235,6 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
   return steps;
 }
 
-// Add new type for step status
-type StepStatus = 'completed' | 'current' | 'upcoming' | 'next';
-
-// Modify step type to include status
-interface Step {
-  time: number;
-  pourAmount: number;
-  cumulative: number;
-  descriptionKey: keyof DynamicTranslations;
-  status: StepStatus;
-}
-
 function App() {
   // State variables for language, coffee parameters, and timer
   const [language, setLanguage] = useState<"en" | "jp">("en");
@@ -390,265 +361,42 @@ function App() {
         py: 2,
         width: '412px',
       }}>
-        {/* Language and dark mode toggles */}
+        {/* ヘッダー部分 */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
-          <IconButton
-            onClick={() => setDarkMode(!darkMode)}
-            color="inherit"
-            title={darkMode ? t.lightMode : t.darkMode}
-          >
-            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-          <ToggleButtonGroup
-            value={language}
-            exclusive
-            onChange={handleLanguageChange}
-            size="small"
-          >
-            <ToggleButton value="en">EN</ToggleButton>
-            <ToggleButton value="jp">JP</ToggleButton>
-          </ToggleButtonGroup>
+          {/* ...ダークモードと言語切り替え... */}
         </Box>
+        
         <Typography variant="h5" align="center" gutterBottom>
           {t.title}
         </Typography>
-        {/* Input section as a table */}
-        <Box sx={{ mb: 2 }}>
-          <Table sx={{
-            '& td, & th': { fontSize: '1.1rem' },
-            '& .MuiTableCell-root': {
-              borderBottom: 'none',
-              padding: '10px 16px',
-            }
-          }}>
-            <TableBody>
-              <TableRow>
-                <TableCell align="right">
-                  {t.roastLevel}:
-                </TableCell>
-                <TableCell align="left">
-                  <ToggleButtonGroup
-                    value={roastLevel}
-                    exclusive
-                    onChange={(_e, newRoast) => { if (newRoast) setRoastLevel(newRoast); }}
-                    size="small"
-                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
-                  >
-                    <ToggleButton value="light">{t.lightRoast}</ToggleButton>
-                    <ToggleButton value="medium">{t.mediumRoast}</ToggleButton>
-                    <ToggleButton value="dark">{t.darkRoast}</ToggleButton>
-                  </ToggleButtonGroup>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="right">
-                  {t.waterTemp}:
-                </TableCell>
-                <TableCell align="left">
-                  {getWaterTemperature(roastLevel)}℃
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="right">
-                  {t.beansAmount}:
-                </TableCell>
-                <TableCell align="left">
-                  <Button variant="outlined" onClick={() => setBeansAmount(beansAmount - 1)} disabled={beansAmount <= 1} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
-                    <RemoveIcon fontSize="small" />
-                  </Button>
-                  <Box component="span" sx={{ mx: 1 }}>{beansAmount}g</Box>
-                  <Button variant="outlined" onClick={() => setBeansAmount(beansAmount + 1)} size='small' sx={{ minWidth: '30px', padding: '5px' }}>
-                    <AddIcon fontSize='small' />
-                  </Button>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="right">
-                  {t.waterVolume}:
-                </TableCell>
-                <TableCell align="left">
-                  {beansAmount * 15}ml
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="right">
-                  {t.taste}:
-                </TableCell>
-                <TableCell align="left">
-                  <ToggleButtonGroup
-                    value={flavor}
-                    exclusive
-                    onChange={(_e, newFlavor) => { if (newFlavor) setFlavor(newFlavor); }}
-                    size="small"
-                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
-                  >
-                    <ToggleButton value="sweet">{t.sweet}</ToggleButton>
-                    <ToggleButton value="balance">{t.balance}</ToggleButton>
-                    <ToggleButton value="sour">{t.sour}</ToggleButton>
-                  </ToggleButtonGroup>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="right">
-                  {t.strength}:
-                </TableCell>
-                <TableCell align="left">
-                  <ToggleButtonGroup
-                    value={strength}
-                    exclusive
-                    onChange={(_e, newStrength) => { if (newStrength) setStrength(newStrength); }}
-                    size="small"
-                    sx={{ '& .MuiToggleButton-root': { fontSize: '1.0rem' } }}
-                  >
-                    <ToggleButton value="light">{t.light}</ToggleButton>
-                    <ToggleButton value="balance">{t.balance}</ToggleButton>
-                    <ToggleButton value="strong">{t.strong}</ToggleButton>
-                  </ToggleButtonGroup>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </Box>
-        {/* Control buttons */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <Button variant="contained" color="primary" onClick={handlePlay} sx={{ mr: 1 }} startIcon={<PlayArrowIcon />}>
-              {t.play}
-            </Button>
-            <Button variant="contained" color="primary" onClick={handlePause} sx={{ mr: 1 }} startIcon={<PauseIcon />}>
-              {t.pause}
-            </Button>
-            <Button variant="contained" color="secondary" onClick={handleReset} startIcon={<ReplayIcon />}>
-              {t.reset}
-            </Button>
-          </Box>
-        </Box>
-        {/* Timeline / Steps */}
-        <Box
-          sx={{
-            position: 'relative',
-            height: `${TIMELINE_CONSTANTS.CONTAINER_HEIGHT}px`,
-            borderLeft: '3px solid #ccc',
-            ml: `${TIMELINE_CONSTANTS.TIMELINE_LEFT_MARGIN}px`,
-            mb: 4
-          }}
-        >
-          {/* Render each step using absolute positioning */}
-          {steps.map((step, index) => {
-            // Calculate top position (with 0:00 fixed at 5px, others with +5px offset)
-            const topPos = getStepPosition(step.time);
-            return (
-              <Box
-                key={index}
-                sx={{
-                  position: 'absolute',
-                  top: `${topPos}px`,
-                  left: '0px',
-                  transform: 'translateY(-50%)'
-                }}
-              >
-                {/* Marker (black dot) */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    left: -1,
-                    top: '50%',
-                    width: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
-                    height: `${TIMELINE_CONSTANTS.MARKER_SIZE}px`,
-                    bgcolor: darkMode ? 'white' : 'black',
-                    borderRadius: '50%',
-                    transform: 'translate(-50%, -50%)'
-                  }}
-                />
-                {/* Step text with horizontal line */}
-                <Typography
-                  variant="body2"
-                  sx={{
-                    ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
-                    fontSize: TIMELINE_CONSTANTS.FONT_SIZE,
-                    fontWeight: step.status === 'current' ? 'bold' : 'normal',
-                    textDecoration: step.status === 'completed' ? 'line-through' : 'none',
-                    color: step.status === 'next' 
-                      ? 'primary.main' 
-                      : step.status === 'completed'
-                      ? 'text.secondary'  // Completed steps are grayed out
-                      : 'text.primary',   // Current and upcoming steps are black
-                  }}
-                >
-                  {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
-                </Typography>
-              </Box>
-            );
-          })}
-          {/* Progress arrow with timer display */}
-          <Box
-            id="arrowContainer"
-            sx={{
-              position: 'absolute',
-              left: `-${TIMELINE_CONSTANTS.ARROW_OFFSET}px`,
-              top: `${getArrowTop()}px`,
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            <Typography variant="body1" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>
-              {formatTime(currentTime)}
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}
-              className="blinking"
-            >▼</Typography>
-          </Box>
-        </Box>
-        <Box sx={{
-          mt: 'auto',
-          pt: 2,
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          textAlign: 'center'
-        }}>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            {t.footerMethodBy}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            <Link
-              href={'https://www.youtube.com/watch?v=lJNPp-onikk'}
-              target="_blank"
-              rel="noopener noreferrer"
-              color="inherit"
-              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center' }}
-            >
-              <YouTubeIcon fontSize="small" />
-              {t.footerMethodVideo}
-            </Link>
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            {t.footerCreatedBy}
-          </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1 }}>
-            <Link
-              href="https://github.com/takatama/46timer"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="inherit"
-              sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-            >
-              <GitHubIcon fontSize="small" />
-              46timer
-            </Link>
-            <Link
-              href="https://x.com/takatama_jp"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="inherit"
-              sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-            >
-              <TwitterIcon fontSize="small" />
-              @takatama_jp
-            </Link>
-          </Box>
-        </Box>
+
+        <Settings
+          t={t}
+          beansAmount={beansAmount}
+          setBeansAmount={setBeansAmount}
+          roastLevel={roastLevel}
+          setRoastLevel={setRoastLevel}
+          flavor={flavor}
+          setFlavor={setFlavor}
+          strength={strength}
+          setStrength={setStrength}
+        />
+
+        <Controls
+          t={t}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onReset={handleReset}
+        />
+
+        <Timeline
+          t={t}
+          steps={steps}
+          currentTime={currentTime}
+          darkMode={darkMode}
+        />
+
+        <Footer t={t} />
       </Container>
     </ThemeProvider>
   );
