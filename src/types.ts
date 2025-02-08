@@ -5,7 +5,8 @@ export interface StaticTranslations {
   taste: string;
   strength: string;
   sweet: string;
-  balance: string;
+  middle: string;
+  medium: string;
   sour: string;
   light: string;
   strong: string;
