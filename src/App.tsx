@@ -25,6 +25,7 @@ import { Link } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import './App.css';
 
 // Create theme with both light and dark modes
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -472,13 +473,13 @@ function App() {
         {/* Control buttons */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-            <Button variant="contained" color="primary" onClick={handlePlay} sx={{ mr: 1 }} className="play-button" startIcon={<PlayArrowIcon />}>
+            <Button variant="contained" color="primary" onClick={handlePlay} sx={{ mr: 1 }} startIcon={<PlayArrowIcon />}>
               {t.play}
             </Button>
-            <Button variant="contained" color="primary" onClick={handlePause} sx={{ mr: 1 }} className="pause-button" startIcon={<PauseIcon />}>
+            <Button variant="contained" color="primary" onClick={handlePause} sx={{ mr: 1 }} startIcon={<PauseIcon />}>
               {t.pause}
             </Button>
-            <Button variant="contained" color="secondary" onClick={handleReset} className="reset-button" startIcon={<ReplayIcon />}>
+            <Button variant="contained" color="secondary" onClick={handleReset} startIcon={<ReplayIcon />}>
               {t.reset}
             </Button>
           </Box>
@@ -506,7 +507,6 @@ function App() {
                   left: '0px',
                   transform: 'translateY(-50%)'
                 }}
-                className="step"
               >
                 {/* Marker (black dot) */}
                 <Box
@@ -520,7 +520,6 @@ function App() {
                     borderRadius: '50%',
                     transform: 'translate(-50%, -50%)'
                   }}
-                  className="step-marker"
                 />
                 {/* Step text with horizontal line */}
                 <Typography
@@ -529,7 +528,6 @@ function App() {
                     ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
                     fontSize: TIMELINE_CONSTANTS.FONT_SIZE
                   }}
-                  className="step-text"
                 >
                   {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
                 </Typography>
@@ -538,7 +536,6 @@ function App() {
           })}
           {/* Progress arrow with timer display */}
           <Box
-            className="arrow-container blinking"
             id="arrowContainer"
             sx={{
               position: 'absolute',
@@ -548,10 +545,14 @@ function App() {
               alignItems: 'center'
             }}
           >
-            <Typography variant="body1" className="time-display" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>
+            <Typography variant="body1" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>
               {formatTime(currentTime)}
             </Typography>
-            <Typography variant="body1" className="arrow-icon" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>▼</Typography>
+            <Typography
+              variant="body1"
+              sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}
+              className="blinking"
+            >▼</Typography>
           </Box>
         </Box>
         <Box sx={{
