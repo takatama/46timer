@@ -109,12 +109,12 @@ const TIMELINE_CONSTANTS = {
   CONTAINER_HEIGHT: 300,
   TOTAL_TIME: 210,
   MARKER_SIZE: 8,
-  ARROW_OFFSET: 41,
-  ARROW_HEIGHT: 12,
-  TIMELINE_LEFT_MARGIN: 40,
+  ARROW_OFFSET: 45,
+  ARROW_HEIGHT: 14,
+  TIMELINE_LEFT_MARGIN: 60,
   STEP_TEXT_MARGIN: 20,
   FIRST_STEP_OFFSET: 5,
-  FONT_SIZE: '0.875rem' // default size of Typography variant="body2"
+  FONT_SIZE: '1.1rem' // default size of Typography variant="body2"
 } as const;
 
 // Function to calculate timer steps based on the 4:6 method
@@ -250,7 +250,7 @@ function App() {
     setTimerRunning(true);
     timerRef.current = setInterval(() => {
       setCurrentTime((prev) => prev + 1);
-    }, 1000);
+    }, 100);
   };
 
   // Pause the timer
@@ -287,7 +287,7 @@ function App() {
     const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
     return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
   };
-  
+
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="sm" sx={{
@@ -489,16 +489,16 @@ function App() {
             id="arrowContainer"
             sx={{
               position: 'absolute',
-              left: '-41px',
+              left: `-${TIMELINE_CONSTANTS.ARROW_OFFSET}px`,
               top: `${getArrowTop()}px`,
               display: 'flex',
               alignItems: 'center'
             }}
           >
-            <Typography variant="body1" className="time-display">
+            <Typography variant="body1" className="time-display" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>
               {formatTime(currentTime)}
             </Typography>
-            <Typography variant="body1" className="arrow-icon">▼</Typography>
+            <Typography variant="body1" className="arrow-icon" sx={{ fontSize: TIMELINE_CONSTANTS.FONT_SIZE }}>▼</Typography>
           </Box>
         </Box>
       </Container>
