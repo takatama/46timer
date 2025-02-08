@@ -6,8 +6,8 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 interface HeaderProps {
   darkMode: boolean;
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
-  language: 'en' | 'jp';
-  handleLanguageChange: (_e: React.MouseEvent<HTMLElement>, newLang: 'en' | 'jp') => void;
+  language: 'en' | 'ja';
+  handleLanguageChange: (_e: React.MouseEvent<HTMLElement>, newLang: 'en' | 'ja') => void;
   t: any;
 }
 
@@ -28,7 +28,7 @@ export default function Header({ darkMode, setDarkMode, language, handleLanguage
         size="small"
       >
         <ToggleButton value="en">EN</ToggleButton>
-        <ToggleButton value="jp">JP</ToggleButton>
+        <ToggleButton value="ja">JA</ToggleButton>
       </ToggleButtonGroup>
     </Box>
   );

@@ -1,6 +1,6 @@
 import { TranslationType } from "../types";
 
-export const translations: Record<'en' | 'jp', TranslationType> = {
+export const translations: Record<'en' | 'ja', TranslationType> = {
   en: {
     title: "4:6 Method Timer",
     beansAmount: "Beans",
@@ -33,7 +33,7 @@ export const translations: Record<'en' | 'jp', TranslationType> = {
     footerMethodVideo: "Method video",
     footerCreatedBy: "Created by Hirokazu Takatama",
   },
-  jp: {
+  ja: {
     title: "4:6メソッド タイマー",
     beansAmount: "豆の量",
     waterVolume: "湯量",
