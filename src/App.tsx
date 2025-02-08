@@ -198,19 +198,22 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
     pourAmount: number;
     cumulative: number;
     descriptionKey: keyof DynamicTranslations;
+    status: StepStatus;
   }> = [];
   // Flavor pours are fixed at 0s and 45s
   steps.push({
     time: 0,
     pourAmount: flavor1,
     cumulative: flavor1,
-    descriptionKey: "flavorPour1"
+    descriptionKey: "flavorPour1",
+    status: 'upcoming'
   });
   steps.push({
     time: 45,
     pourAmount: flavor2,
     cumulative: flavor1 + flavor2,
-    descriptionKey: "flavorPour2"
+    descriptionKey: "flavorPour2",
+    status: 'upcoming'
   });
   // Strength pour 1 is fixed at 90 seconds (1:30)
   const strengthPourAmount = strengthWater / strengthSteps;
@@ -218,7 +221,8 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
     time: 90,
     pourAmount: strengthPourAmount,
     cumulative: steps[steps.length - 1].cumulative + strengthPourAmount,
-    descriptionKey: "strengthPour1"
+    descriptionKey: "strengthPour1",
+    status: 'upcoming'
   });
   // If more than one strength pour, calculate remaining pours evenly over the remaining 120 seconds (210 - 90)
   if (strengthSteps > 1) {
@@ -232,7 +236,8 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
         time: t,
         pourAmount: strengthPourAmount,
         cumulative: cumulative,
-        descriptionKey: `strengthPour${i}` as keyof DynamicTranslations
+        descriptionKey: `strengthPour${i}` as keyof DynamicTranslations,
+        status: 'upcoming'
       });
     }
   }
@@ -241,9 +246,22 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
     time: 210,
     pourAmount: 0,
     cumulative: totalWater,
-    descriptionKey: "finish"
+    descriptionKey: "finish",
+    status: 'upcoming'
   });
   return steps;
+}
+
+// Add new type for step status
+type StepStatus = 'completed' | 'current' | 'upcoming' | 'next';
+
+// Modify step type to include status
+interface Step {
+  time: number;
+  pourAmount: number;
+  cumulative: number;
+  descriptionKey: keyof DynamicTranslations;
+  status: StepStatus;
 }
 
 function App() {
@@ -254,7 +272,7 @@ function App() {
   const [flavor, setFlavor] = useState("balance");
   const [strength, setStrength] = useState("balance");
   const [currentTime, setCurrentTime] = useState(0);
-  const [steps, setSteps] = useState<{ time: number; pourAmount: number; cumulative: number; descriptionKey: string; }[]>([]);
+  const [steps, setSteps] = useState<Step[]>([]);
   const [timerRunning, setTimerRunning] = useState(false);
   const timerRef = useRef<number | null>(null);
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -341,6 +359,27 @@ function App() {
     const topPos = (time / TIMELINE_CONSTANTS.TOTAL_TIME) * TIMELINE_CONSTANTS.CONTAINER_HEIGHT;
     return time === 0 ? TIMELINE_CONSTANTS.FIRST_STEP_OFFSET : topPos + TIMELINE_CONSTANTS.FIRST_STEP_OFFSET;
   };
+
+  // Add function to update step statuses
+  const updateStepStatuses = (currentTimeValue: number) => {
+    setSteps(prevSteps => prevSteps.map((step, index) => {
+      if (currentTimeValue >= step.time && (index === prevSteps.length - 1 || currentTimeValue < prevSteps[index + 1].time)) {
+        return { ...step, status: 'current' };
+      }
+      if (currentTimeValue >= step.time) {
+        return { ...step, status: 'completed' };
+      }
+      if (currentTimeValue >= step.time - 5 && currentTimeValue < step.time) {
+        return { ...step, status: 'next' };
+      }
+      return { ...step, status: 'upcoming' };
+    }));
+  };
+
+  // Update useEffect for timer
+  useEffect(() => {
+    updateStepStatuses(currentTime);
+  }, [currentTime]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -526,7 +565,14 @@ function App() {
                   variant="body2"
                   sx={{
                     ml: `${TIMELINE_CONSTANTS.STEP_TEXT_MARGIN}px`,
-                    fontSize: TIMELINE_CONSTANTS.FONT_SIZE
+                    fontSize: TIMELINE_CONSTANTS.FONT_SIZE,
+                    fontWeight: step.status === 'current' ? 'bold' : 'normal',
+                    textDecoration: step.status === 'completed' ? 'line-through' : 'none',
+                    color: step.status === 'next' 
+                      ? 'primary.main' 
+                      : step.status === 'completed'
+                      ? 'text.secondary'  // Completed steps are grayed out
+                      : 'text.primary',   // Current and upcoming steps are black
                   }}
                 >
                   {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
