@@ -31,7 +31,7 @@ export const translations: Record<'en' | 'ja', TranslationType> = {
     darkRoast: "Dark",
     waterTemp: "Temp",
     footerMethodBy: "The 4:6 method was created by Tetsu Kasuya",
-    footerMethodVideo: "Method video",
+    footerMethodVideo: "Watch the Method Video",
     footerCreatedBy: "Created by Hirokazu Takatama",
   },
   ja: {
@@ -64,7 +64,7 @@ export const translations: Record<'en' | 'ja', TranslationType> = {
     darkRoast: "深煎り",
     waterTemp: "湯温",
     footerMethodBy: "4:6メソッドは粕谷哲氏によって考案されました",
-    footerMethodVideo: "メソッド解説動画",
+    footerMethodVideo: "メソッドの解説動画",
     footerCreatedBy: "Created by Hirokazu Takatama",
   }
 };
