@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography, Box, IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Container, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import Header from './components/Header';
 import Settings from './components/Settings';
 import Controls from './components/Controls';
 import Timeline from './components/Timeline';
 import Footer from './components/Footer';
 import './App.css';
 import { translations } from './translations/index'
+import { DynamicTranslations, Step } from './types';
 
 // Create theme with both light and dark modes
 const getTheme = (mode: 'light' | 'dark') => createTheme({
@@ -58,13 +58,7 @@ function calculateSteps(beansAmount: number, flavor: string, strength: string) {
   } else {
     strengthSteps = 2;
   }
-  const steps: Array<{
-    time: number;
-    pourAmount: number;
-    cumulative: number;
-    descriptionKey: keyof DynamicTranslations;
-    status: StepStatus;
-  }> = [];
+  const steps: Array<Step> = [];
   // Flavor pours are fixed at 0s and 45s
   steps.push({
     time: 0,
@@ -133,15 +127,6 @@ function App() {
   const theme = getTheme(darkMode ? 'dark' : 'light');
   const [roastLevel, setRoastLevel] = useState("medium");
 
-  // Function to get temperature based on roast level
-  const getWaterTemperature = (roast: string) => {
-    switch (roast) {
-      case "light": return 93;
-      case "dark": return 83;
-      default: return 88;
-    }
-  };
-
   // Recalculate steps whenever coffee parameters change
   useEffect(() => {
     const newSteps = calculateSteps(beansAmount, flavor, strength);
@@ -161,13 +146,6 @@ function App() {
   useEffect(() => {
     setDarkMode(prefersDarkMode);
   }, [prefersDarkMode]);
-
-  // Function to format seconds as "m:ss"
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return m + ":" + (s < 10 ? "0" + s : s);
-  };
 
   // Start or resume the timer
   const handlePlay = () => {
@@ -211,24 +189,13 @@ function App() {
         py: 2,
         width: '412px',
       }}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>
-          <IconButton
-            onClick={() => setDarkMode(!darkMode)}
-            color="inherit"
-            title={darkMode ? t.lightMode : t.darkMode}
-          >
-            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
-          <ToggleButtonGroup
-            value={language}
-            exclusive
-            onChange={handleLanguageChange}
-            size="small"
-          >
-            <ToggleButton value="en">EN</ToggleButton>
-            <ToggleButton value="jp">JP</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+        <Header
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          language={language}
+          handleLanguageChange={handleLanguageChange}
+          t={t}
+        />
 
         <Typography variant="h5" align="center" gutterBottom>
           {t.title}
