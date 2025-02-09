@@ -14,10 +14,10 @@ const CONTAINER_HEIGHT = 300;
 const TOTAL_TIME = 210;
 const MARKER_SIZE = 8;
 const ARROW_OFFSET = 45;
-const ARROW_HEIGHT = 14;
+const ARROW_HEIGHT = 25;
 const TIMELINE_LEFT_MARGIN = 80;
 const STEP_TEXT_MARGIN = 20;
-const FIRST_STEP_OFFSET = 5;
+const FIRST_STEP_OFFSET = 10;
 const FONT_SIZE = '1.1rem';
 const INDICATE_NEXT_STEP_SEC = 3;
 
@@ -68,7 +68,7 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
         height: `${CONTAINER_HEIGHT}px`,
         borderLeft: '3px solid #ccc',
         ml: `${TIMELINE_LEFT_MARGIN}px`,
-        mb: 4
+        mb: 7
       }}
     >
       {/* Render each step using absolute positioning */}
@@ -90,7 +90,7 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
               sx={{
                 position: 'absolute',
                 left: -1,
-                top: '50%',
+                top: '25%',
                 width: `${MARKER_SIZE}px`,
                 height: `${MARKER_SIZE}px`,
                 bgcolor: darkMode ? 'white' : 'black',
@@ -102,17 +102,32 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
             <Typography
               variant="body2"
               sx={{
-              ml: `${STEP_TEXT_MARGIN}px`,
-              fontSize: FONT_SIZE,
-              ...{
-                current: { fontWeight: 'bold' },
-                next: { fontWeight: 'bold', color: 'primary.main' },
-                completed: { textDecoration: 'line-through', color: 'text.secondary' },
-                upcoming: { color: 'text.primary' }
-              }[step.status]
+                ml: `${STEP_TEXT_MARGIN}px`,
+                fontSize: FONT_SIZE,
+                ...{
+                  current: { fontWeight: 'bold' },
+                  next: { fontWeight: 'bold', color: 'primary.main' },
+                  completed: { textDecoration: 'line-through', color: 'text.secondary' },
+                  upcoming: { color: 'text.primary' }
+                }[step.status]
               }}
             >
-              {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
+              {formatTime(step.time)}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                ml: `${STEP_TEXT_MARGIN}px`,
+                fontSize: FONT_SIZE,
+                ...{
+                  current: { fontWeight: 'bold' },
+                  next: { fontWeight: 'bold', color: 'primary.main' },
+                  completed: { textDecoration: 'line-through', color: 'text.secondary' },
+                  upcoming: { color: 'text.primary' }
+                }[step.status]
+              }}
+            >
+              {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
             </Typography>
           </Box>
         );

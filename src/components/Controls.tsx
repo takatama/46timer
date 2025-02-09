@@ -16,7 +16,7 @@ const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset }) => {
   const isSmallScreen = useMediaQuery('(max-width:376px)');
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 5 }}>
       <Button
         variant="contained"
         color="primary"

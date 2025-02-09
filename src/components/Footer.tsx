@@ -16,7 +16,7 @@ const Footer: React.FC<FooterProps> = ({ t }) => {
       pt: 2,
       borderTop: '1px solid',
       borderColor: 'divider',
-      textAlign: 'center'
+      textAlign: 'center',
     }}>
       <Typography variant="body2" color="text.secondary" gutterBottom>
         {t.footerMethodBy}
