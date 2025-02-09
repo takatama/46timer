@@ -145,15 +145,11 @@ function App() {
   const [soundOn, setSoundOn] = useState(true);
 
   useEffect(() => {
-    const paramLang = searchParams.get('lang') as "en" | "ja";
     const paramBeans = parseInt(searchParams.get('beans') || '', 10);
     const paramFlavor = searchParams.get('flavor');
     const paramStrength = searchParams.get('strength');
     const paramRoast = searchParams.get('roast');
 
-    if (paramLang && (paramLang === 'en' || paramLang === 'ja')) {
-      setLanguage(paramLang);
-    }
     if (!isNaN(paramBeans)) {
       setBeansAmount(paramBeans);
     }
@@ -170,8 +166,6 @@ function App() {
   
   // Detect user's preferred language
   useEffect(() => {
-    const paramLang = searchParams.get('lang') as "en" | "ja";
-    if (paramLang) return;
     const userLang = navigator.language || navigator.languages[0];
     if (userLang.startsWith('ja')) {
       setLanguage('ja');
@@ -189,13 +183,12 @@ function App() {
   // Update URL query parameters when state changes
   useEffect(() => {
     const params = new URLSearchParams();
-    params.set('lang', language);
     params.set('beans', beansAmount.toString());
     params.set('flavor', flavor);
     params.set('strength', strength);
     params.set('roast', roastLevel);
     setSearchParams(params);
-  }, [language, beansAmount, flavor, strength, roastLevel, setSearchParams]);
+  }, [beansAmount, flavor, strength, roastLevel, setSearchParams]);
 
   // Cleanup timer when component unmounts
   useEffect(() => {
