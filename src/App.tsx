@@ -296,6 +296,7 @@ function App() {
           currentTime={currentTime}
           darkMode={darkMode}
           soundOn={soundOn}
+          language={language}
         />
 
         <Footer t={t} />
