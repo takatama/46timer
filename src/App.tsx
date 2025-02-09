@@ -143,6 +143,7 @@ function App() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [soundOn, setSoundOn] = useState(true);
+  const [voice, setVoice] = useState<'male' | 'female'>('female');
 
   useEffect(() => {
     const paramBeans = parseInt(searchParams.get('beans') || '', 10);
@@ -280,6 +281,8 @@ function App() {
           onPause={handlePause}
           onReset={handleReset}
           onToggleSound={handleToggleSound}
+          voice={voice}
+          setVoice={setVoice}
         />
 
         <Timeline
@@ -290,6 +293,7 @@ function App() {
           darkMode={darkMode}
           soundOn={soundOn}
           language={language}
+          voice={voice}
         />
 
         <Footer t={t} />

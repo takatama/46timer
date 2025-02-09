@@ -10,6 +10,7 @@ interface TimelineProps {
   setSteps: React.Dispatch<React.SetStateAction<Step[]>>;
   soundOn: boolean;
   language: 'en' | 'ja';
+  voice: 'male' | 'female';
 }
 
 const CONTAINER_HEIGHT = 300;
@@ -23,7 +24,7 @@ const FIRST_STEP_OFFSET = 10;
 const FONT_SIZE = '1.1rem';
 const INDICATE_NEXT_STEP_SEC = 3;
 
-const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode, soundOn, language }) => {
+const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode, soundOn, language, voice }) => {
   const isPlayingRef = useRef(false);
   const nextStepAudio = useRef(new Audio());
   const finishAudio = useRef(new Audio());
@@ -36,10 +37,10 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
 
   // Update audio sources when language changes
   useEffect(() => {
-    nextStepAudio.current.src = `/audio/${language}-male-next-step.wav`;
-    finishAudio.current.src = `/audio/${language}-male-finish.wav`;
-  }, [language]);
-  
+    nextStepAudio.current.src = `/audio/${language}-${voice}-next-step.wav`;
+    finishAudio.current.src = `/audio/${language}-${voice}-finish.wav`;
+  }, [language, voice]);
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);

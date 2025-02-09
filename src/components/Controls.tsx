@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Button, IconButton, useMediaQuery } from '@mui/material';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import MaleIcon from '@mui/icons-material/Man';
+import FemaleIcon from '@mui/icons-material/Woman';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { TranslationType } from '../types';
 
 interface ControlsProps {
@@ -13,22 +15,33 @@ interface ControlsProps {
   onPause: () => void;
   onReset: () => void;
   onToggleSound: (isSoundOn: boolean) => void;
+  voice: 'male' | 'female';
+  setVoice: (newVoice: 'male' | 'female') => void;
 }
 
-const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset, onToggleSound }) => {
-  const isSmallScreen = useMediaQuery('(max-width:376px)');
+const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset, onToggleSound, voice, setVoice }) => {
+  const isSmallScreen = useMediaQuery('(max-width:465px)');
   const [isSoundOn, setIsSoundOn] = useState(false);
 
   const handleToggleSound = () => {
     setIsSoundOn(!isSoundOn);
     onToggleSound(!isSoundOn);
   };
+  
+  const handleToggleVoice = () => {
+    setVoice(voice === 'male' ? 'female' : 'male');
+  };
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 5 }}>
-      <IconButton onClick={handleToggleSound} sx={{ mr: 1 }}>
+      <IconButton onClick={handleToggleSound}>
         {isSoundOn ? <VolumeUpIcon /> : <VolumeOffIcon />}
       </IconButton>
+
+      <IconButton onClick={handleToggleVoice} sx={{ mr: 1 }}>
+        {voice === 'male' ? <MaleIcon /> : <FemaleIcon />}
+      </IconButton>
+
       <Button
         variant="contained"
         color="primary"
