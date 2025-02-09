@@ -8,6 +8,7 @@ interface TimelineProps {
   currentTime: number;
   darkMode: boolean;
   setSteps: React.Dispatch<React.SetStateAction<Step[]>>;
+  soundOn: boolean;
 }
 
 const CONTAINER_HEIGHT = 300;
@@ -21,7 +22,9 @@ const FIRST_STEP_OFFSET = 10;
 const FONT_SIZE = '1.1rem';
 const INDICATE_NEXT_STEP_SEC = 3;
 
-const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode }) => {
+const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode, soundOn }) => {
+  const [isPlaying, setIsPlaying] = React.useState(false);
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
@@ -40,6 +43,23 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
     return time === 0 ? FIRST_STEP_OFFSET : topPos + FIRST_STEP_OFFSET;
   };
 
+  const nextStepAudio = new Audio('/audio/en-male-next-step.wav');
+  const finishAudio = new Audio('/audio/en-male-finish.wav');
+
+  // Reset isPlaying when audio ends
+  nextStepAudio.addEventListener('ended', () => setIsPlaying(false));
+  finishAudio.addEventListener('ended', () => setIsPlaying(false));
+  
+  const playAudio = (isFinish: boolean) => {
+    if (!soundOn || isPlaying) return;
+    if (isFinish) {
+      finishAudio.play();
+    } else {
+      nextStepAudio.play();
+    }
+    setIsPlaying(true);
+  }
+
   // Add function to update step statuses
   const updateStepStatuses = (currentTimeValue: number) => {
     setSteps(prevSteps => prevSteps.map((step, index) => {
@@ -50,6 +70,8 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
         return { ...step, status: 'completed' };
       }
       if (currentTimeValue >= step.time - INDICATE_NEXT_STEP_SEC && currentTimeValue < step.time) {
+        const isFinish = index === prevSteps.length - 1;
+        playAudio(isFinish);
         return { ...step, status: 'next' };
       }
       return { ...step, status: 'upcoming' };

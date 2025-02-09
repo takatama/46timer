@@ -142,6 +142,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [soundOn, setSoundOn] = useState(true);
 
   useEffect(() => {
     const paramLang = searchParams.get('lang') as "en" | "ja";
@@ -216,7 +217,7 @@ function App() {
     setTimerRunning(true);
     timerRef.current = setInterval(() => {
       setCurrentTime((prev) => prev + 0.5);
-    }, 500);
+    }, 50);
   };
 
   // Pause the timer
@@ -241,6 +242,10 @@ function App() {
     if (newLang) {
       setLanguage(newLang);
     }
+  };
+
+  const handleToggleSound = (isSoundOn: boolean) => {
+    setSoundOn(isSoundOn);
   };
 
   return (
@@ -281,6 +286,7 @@ function App() {
           onPlay={handlePlay}
           onPause={handlePause}
           onReset={handleReset}
+          onToggleSound={handleToggleSound}
         />
 
         <Timeline
@@ -289,6 +295,7 @@ function App() {
           setSteps={setSteps}
           currentTime={currentTime}
           darkMode={darkMode}
+          soundOn={soundOn}
         />
 
         <Footer t={t} />

@@ -1,8 +1,10 @@
-import React from 'react';
-import { Box, Button, useMediaQuery } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, IconButton, useMediaQuery } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import ReplayIcon from '@mui/icons-material/Replay';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { TranslationType } from '../types';
 
 interface ControlsProps {
@@ -10,13 +12,23 @@ interface ControlsProps {
   onPlay: () => void;
   onPause: () => void;
   onReset: () => void;
+  onToggleSound: (isSoundOn: boolean) => void;
 }
 
-const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset }) => {
+const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset, onToggleSound }) => {
   const isSmallScreen = useMediaQuery('(max-width:376px)');
+  const [isSoundOn, setIsSoundOn] = useState(true);
+
+  const handleToggleSound = () => {
+    setIsSoundOn(!isSoundOn);
+    onToggleSound(!isSoundOn);
+  };
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 5 }}>
+      <IconButton onClick={handleToggleSound} sx={{ mr: 1 }}>
+        {isSoundOn ? <VolumeUpIcon /> : <VolumeOffIcon />}
+      </IconButton>
       <Button
         variant="contained"
         color="primary"
