@@ -30,9 +30,9 @@ export const translations: Record<'en' | 'ja', TranslationType> = {
     mediumRoast: "Medium",
     darkRoast: "Dark",
     waterTemp: "Temp",
-    footerMethodBy: "The 4:6 method was created by Tetsu Kasuya",
+    footerMethodBy: "The 4:6 method was developed by Tetsu Kasuya",
     footerMethodVideo: "Watch the Method Video",
-    footerCreatedBy: "Created by Hirokazu Takatama",
+    footerCreatedBy: "46timer was developed by Hirokazu Takatama",
   },
   ja: {
     title: "4:6メソッド タイマー",
@@ -63,8 +63,8 @@ export const translations: Record<'en' | 'ja', TranslationType> = {
     mediumRoast: "中煎り",
     darkRoast: "深煎り",
     waterTemp: "湯温",
-    footerMethodBy: "4:6メソッドは粕谷哲氏によって考案されました",
+    footerMethodBy: "4:6メソッドは粕谷哲氏が考案しました",
     footerMethodVideo: "メソッドの解説動画",
-    footerCreatedBy: "Created by Hirokazu Takatama",
+    footerCreatedBy: "46timer was developed by Hirokazu Takatama",
   }
 };

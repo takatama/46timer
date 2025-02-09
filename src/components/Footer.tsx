@@ -33,7 +33,7 @@ const Footer: React.FC<FooterProps> = ({ t }) => {
           {t.footerMethodVideo}
         </Link>
       </Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
+      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mt: 2 }}>
         {t.footerCreatedBy}
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1 }}>
