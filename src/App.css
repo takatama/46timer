@@ -1,5 +1,5 @@
 .blinking {
-  animation: blink 1s infinite;
+  animation: blink 3s infinite;
 }
 
 @keyframes blink {

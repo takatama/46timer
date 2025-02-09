@@ -17,7 +17,7 @@ interface ControlsProps {
 
 const Controls: React.FC<ControlsProps> = ({ t, onPlay, onPause, onReset, onToggleSound }) => {
   const isSmallScreen = useMediaQuery('(max-width:376px)');
-  const [isSoundOn, setIsSoundOn] = useState(true);
+  const [isSoundOn, setIsSoundOn] = useState(false);
 
   const handleToggleSound = () => {
     setIsSoundOn(!isSoundOn);

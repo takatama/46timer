@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Step, TranslationType, DynamicTranslations } from '../types';
 
@@ -23,7 +23,12 @@ const FONT_SIZE = '1.1rem';
 const INDICATE_NEXT_STEP_SEC = 3;
 
 const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode, soundOn }) => {
-  const [isPlaying, setIsPlaying] = React.useState(false);
+  const isPlayingRef = useRef(false);
+  const nextStepAudio = useRef(new Audio('/audio/en-male-next-step.wav'));
+  const finishAudio = useRef(new Audio('/audio/en-male-finish.wav'));
+  // Reset isPlaying when audio ends
+  nextStepAudio.current.addEventListener('ended', () => isPlayingRef.current = false);
+  finishAudio.current.addEventListener('ended', () => isPlayingRef.current = false);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -42,23 +47,20 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
     const topPos = (time / TOTAL_TIME) * CONTAINER_HEIGHT;
     return time === 0 ? FIRST_STEP_OFFSET : topPos + FIRST_STEP_OFFSET;
   };
-
-  const nextStepAudio = new Audio('/audio/en-male-next-step.wav');
-  const finishAudio = new Audio('/audio/en-male-finish.wav');
-
-  // Reset isPlaying when audio ends
-  nextStepAudio.addEventListener('ended', () => setIsPlaying(false));
-  finishAudio.addEventListener('ended', () => setIsPlaying(false));
   
   const playAudio = (isFinish: boolean) => {
-    if (!soundOn || isPlaying) return;
+    if (!soundOn || isPlayingRef.current) return;
     if (isFinish) {
-      finishAudio.play();
+      finishAudio.current.pause();
+      finishAudio.current.currentTime = 0;
+      finishAudio.current.play();
     } else {
-      nextStepAudio.play();
+      nextStepAudio.current.pause();
+      nextStepAudio.current.currentTime = 0;
+      nextStepAudio.current.play();
     }
-    setIsPlaying(true);
-  }
+    isPlayingRef.current = true;
+  };
 
   // Add function to update step statuses
   const updateStepStatuses = (currentTimeValue: number) => {
