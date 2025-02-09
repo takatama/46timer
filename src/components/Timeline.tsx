@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Step, TranslationType, DynamicTranslations } from '../types';
 
@@ -8,20 +8,39 @@ interface TimelineProps {
   currentTime: number;
   darkMode: boolean;
   setSteps: React.Dispatch<React.SetStateAction<Step[]>>;
+  soundOn: boolean;
+  language: 'en' | 'ja';
+  voice: 'male' | 'female';
 }
 
 const CONTAINER_HEIGHT = 300;
 const TOTAL_TIME = 210;
 const MARKER_SIZE = 8;
 const ARROW_OFFSET = 45;
-const ARROW_HEIGHT = 14;
+const ARROW_HEIGHT = 25;
 const TIMELINE_LEFT_MARGIN = 80;
 const STEP_TEXT_MARGIN = 20;
-const FIRST_STEP_OFFSET = 5;
+const FIRST_STEP_OFFSET = 10;
 const FONT_SIZE = '1.1rem';
 const INDICATE_NEXT_STEP_SEC = 3;
 
-const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode }) => {
+const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, darkMode, soundOn, language, voice }) => {
+  const isPlayingRef = useRef(false);
+  const nextStepAudio = useRef(new Audio());
+  const finishAudio = useRef(new Audio());
+
+  // Reset isPlaying when audio ends
+  useEffect(() => {
+    nextStepAudio.current.addEventListener('ended', () => isPlayingRef.current = false);
+    finishAudio.current.addEventListener('ended', () => isPlayingRef.current = false);
+  }, []);
+
+  // Update audio sources when language changes
+  useEffect(() => {
+    nextStepAudio.current.src = `/audio/${language}-${voice}-next-step.wav`;
+    finishAudio.current.src = `/audio/${language}-${voice}-finish.wav`;
+  }, [language, voice]);
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
@@ -39,6 +58,20 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
     const topPos = (time / TOTAL_TIME) * CONTAINER_HEIGHT;
     return time === 0 ? FIRST_STEP_OFFSET : topPos + FIRST_STEP_OFFSET;
   };
+  
+  const playAudio = (isFinish: boolean) => {
+    if (!soundOn || isPlayingRef.current) return;
+    if (isFinish) {
+      finishAudio.current.pause();
+      finishAudio.current.currentTime = 0;
+      finishAudio.current.play();
+    } else {
+      nextStepAudio.current.pause();
+      nextStepAudio.current.currentTime = 0;
+      nextStepAudio.current.play();
+    }
+    isPlayingRef.current = true;
+  };
 
   // Add function to update step statuses
   const updateStepStatuses = (currentTimeValue: number) => {
@@ -50,6 +83,8 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
         return { ...step, status: 'completed' };
       }
       if (currentTimeValue >= step.time - INDICATE_NEXT_STEP_SEC && currentTimeValue < step.time) {
+        const isFinish = index === prevSteps.length - 1;
+        playAudio(isFinish);
         return { ...step, status: 'next' };
       }
       return { ...step, status: 'upcoming' };
@@ -68,7 +103,7 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
         height: `${CONTAINER_HEIGHT}px`,
         borderLeft: '3px solid #ccc',
         ml: `${TIMELINE_LEFT_MARGIN}px`,
-        mb: 4
+        mb: 7
       }}
     >
       {/* Render each step using absolute positioning */}
@@ -90,7 +125,7 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
               sx={{
                 position: 'absolute',
                 left: -1,
-                top: '50%',
+                top: '25%',
                 width: `${MARKER_SIZE}px`,
                 height: `${MARKER_SIZE}px`,
                 bgcolor: darkMode ? 'white' : 'black',
@@ -102,17 +137,32 @@ const Timeline: React.FC<TimelineProps> = ({ t, steps, setSteps, currentTime, da
             <Typography
               variant="body2"
               sx={{
-              ml: `${STEP_TEXT_MARGIN}px`,
-              fontSize: FONT_SIZE,
-              ...{
-                current: { fontWeight: 'bold' },
-                next: { fontWeight: 'bold', color: 'primary.main' },
-                completed: { textDecoration: 'line-through', color: 'text.secondary' },
-                upcoming: { color: 'text.primary' }
-              }[step.status]
+                ml: `${STEP_TEXT_MARGIN}px`,
+                fontSize: FONT_SIZE,
+                ...{
+                  current: { fontWeight: 'bold' },
+                  next: { fontWeight: 'bold', color: 'primary.main' },
+                  completed: { textDecoration: 'line-through', color: 'text.secondary' },
+                  upcoming: { color: 'text.primary' }
+                }[step.status]
               }}
             >
-              {formatTime(step.time)} {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
+              {formatTime(step.time)}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                ml: `${STEP_TEXT_MARGIN}px`,
+                fontSize: FONT_SIZE,
+                ...{
+                  current: { fontWeight: 'bold' },
+                  next: { fontWeight: 'bold', color: 'primary.main' },
+                  completed: { textDecoration: 'line-through', color: 'text.secondary' },
+                  upcoming: { color: 'text.primary' }
+                }[step.status]
+              }}
+            >
+              {(t[step.descriptionKey as keyof DynamicTranslations])(Math.round(step.cumulative))}
             </Typography>
           </Box>
         );

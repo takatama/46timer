@@ -1,63 +1,94 @@
-# 46timer - Perfect Coffee with the 4:6 Method
-Discover the art of perfect coffee brewing with the 4:6 method! This elegant web-based timer guides you through each step of the process, helping you craft your ideal cup of coffee. Whether you're a coffee enthusiast or just starting your brewing journey, 46timer makes it simple to achieve professional-level results.
+# 46timer - Perfect Pour Over Coffee, Every Time
 
-Customize your brew by selecting your preferred bean roast, coffee amount, and desired taste profile. The intuitive interface with blinking arrows guides your pours with precision timing and exact water measurements. No more guesswork – just consistently delicious coffee, every single time.
+A precision timer for the award-winning 4:6 coffee brewing method. Get consistently delicious coffee with an elegant, easy-to-follow interface.
 
-## 4:6 Method
-The 4:6 method is a coffee brewing technique developed by World Brewers Cup Champion Tetsu Kasuya. It involves dividing the water into two parts: 40% for the first two pours and 60% for the last three pours. This method allows you to control the strength and taste of your coffee by adjusting the amount of water in each pour.
+## What's the 4:6 Method?
 
-## Usage
-1. Get your coffee gear ready :coffee:
-2. Visit [46timer](https://46timer.pages.dev/) and customize your brew:
-  - Choose bean roast level
-  - Set coffee amount
-  - Select desired taste and strength
-3. Review your personalized brewing steps
-4. Hit `Play` to start brewing
-5. Follow the blinking arrow - it guides you through each pour with precise timing and water amounts
+A game-changing pour-over technique by World Brewers Cup Champion Tetsu Kasuya that gives you total control over your coffee's strength and flavor profile by dividing water into strategic pours:
+- 40% of water for taste control (acidity vs. sweetness)
+- 60% of water for strength control (light vs. strong)
 
-Start brewing the perfect cup today!
+## Features
 
-## Key Features
+✨ **Smart Guidance**
+- Visual progress tracker
+- Animated pour guides with precise timing
+- Voice countdown with natural speech synthesis
+- Available in English and Japanese
 
-**Smart Calculations**
-- Automatic step calculations based on preferences
-- Precise water measurements for each pour
-- Optimized for 3:30 total brew time
-
-**Intuitive Brewing Guide**
-- Visual timeline with proportional step spacing
-- Real-time guidance with clear indicators
-- Blinking arrows for precise pour timing
-
-**Perfect Your Technique**
-- Learn optimal grind size through visual feedback
-- Track brewing progress in real-time
-- Fine-tune your process for consistent results
+⚡ **Fully Customizable**
+- Adjust coffee amount and roast level
+- Fine-tune taste balance
+- Control brew strength
+- Get precise water measurements
 
 ## Tips
 - Start with a coarse grind - the 4:6 method requires all water to drain within 3:30
 - Use the visual timeline to gauge if your grind size needs adjustment
 - If water isn't draining fast enough, adjust to a coarser grind
 
-# Development
+## Quick Start
 
-## Technologies Used
-- React, React Router, Material-UI
-- Vite, TypeScript
-- Cloudflare Pages
+1. Visit [46timer](https://46timer.pages.dev/)
+2. Set your preferences
+3. Follow the guided pours
+4. Enjoy your perfect cup!
 
-## Local Development
-1. Clone the repository
-2. Install dependencies with `npm install`
-3. Start the development server with `npm run dev`
-4. Open [http://localhost:5173](http://localhost:5173) in your browser
+## For Developers
 
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request to suggest changes or improvements.
+Built with React + TypeScript, featuring:
+- Material-UI components
+- Voice synthesis (SSML)
+- Cloudflare Pages hosting
+
+### Voice Guidance
+The app uses SSML (Speech Synthesis Markup Language) to create natural-sounding countdown voice cues before each step:
+
+```xml
+<speak>
+  <par>
+    <media xml:id="three" begin="0s">
+      <speak><prosody rate="x-fast">3</prosody></speak>
+    </media>
+
+    <media xml:id="two" begin="three.begin+1.0s">
+      <speak><prosody rate="x-fast">2</prosody></speak>
+    </media>
+
+    <media xml:id="one" begin="two.begin+1.0s">
+      <speak><prosody rate="x-fast">1</prosody></speak>
+    </media>
+
+    <media begin="one.begin+1.0s">
+      <speak><prosody rate="medium">Next Step!</prosody></speak>
+    </media>
+  </par>
+</speak>
+```
+
+Uses Google Cloud Text-to-Speech Wavenet voices:
+
+- English
+  - Male: en-US-Wavenet-J
+  - Female: en-US-Wavenet-H
+- Japanese
+  - Male: ja-JP-Wavenet-D
+  - Female: ja-JP-Wavenet-B
+
+### Development
+
+```bash
+git clone https://github.com/takatama/46timer.git
+cd 46timer
+npm install
+npm run dev
+```
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request to suggest changes or improvements.
 
 ## Acknowledgements
 - [Tetsu Kasuya](https://www.instagram.com/tetsukasuya/) for creating the 4:6 method
