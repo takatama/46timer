@@ -1,18 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      body {
-        margin: 0;
-      }
-    </style>
     <title>46timer - 4:6 Method Coffee Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Recipe",
+        "name": "4:6 Method Coffee",
+        "description": "Tetsu Kasuya's 4:6 pour-over method using a 1:15 coffee-to-water ratio.",
+        "recipeCategory": "Coffee",
+        "recipeCuisine": "Coffee",
+        "recipeYield": "300g",
+        "recipeIngredient": [
+          "Coffee beans 20g",
+          "Water 300g"
+        ],
+        "recipeInstructions": [
+          { "@type": "HowToStep", "text": "Use the first 40% of water to adjust sweetness and acidity." },
+          { "@type": "HowToStep", "text": "Use the remaining 60% of water to adjust strength." },
+          { "@type": "HowToStep", "text": "Follow the selected pour schedule until 3:30." },
+          { "@type": "HowToStep", "text": "Finish." }
+        ]
+      }
+    </script>
   </body>
 </html>

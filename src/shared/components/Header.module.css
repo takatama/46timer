@@ -1,0 +1,37 @@
+.appBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--md-surface);
+  box-shadow: var(--shadow-1);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.appTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.appTitle img {
+  display: block;
+}
+
+.iconBtn {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--md-text);
+}
+
+.iconBtn svg {
+  width: 20px;
+  height: 20px;
+}

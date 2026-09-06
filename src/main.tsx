@@ -1,9 +1,32 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import AppWrapper from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import i18n from "./shared/i18n/config";
+import { choosePreferredLanguage, getUrlLanguage } from "./shared/i18n/routing";
+import { App } from "./app/App";
+import "./shared/styles/tokens.css";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <AppWrapper />
-  </StrictMode>,
-)
+let savedLanguage: unknown;
+try {
+  const stored = localStorage.getItem("46timer-settings");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    savedLanguage = parsed.state?.language;
+  }
+  savedLanguage ??= localStorage.getItem("46timer-language");
+} catch {
+  // Use the browser language when saved settings cannot be read.
+}
+
+const initialLanguage = getUrlLanguage(window.location.pathname)
+  ?? choosePreferredLanguage(savedLanguage, navigator.language);
+
+await i18n.changeLanguage(initialLanguage);
+
+const root = document.getElementById("root");
+if (root) {
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "46timer",
+  "compatibility_date": "2025-02-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "dist",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "NODE_VERSION": "22.14.0"
+  }
+}

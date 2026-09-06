@@ -1,95 +1,69 @@
-# 46timer - Perfect Pour Over Coffee, Every Time
+# 46timer
 
-A precision timer for the award-winning 4:6 coffee brewing method. Get consistently delicious coffee with an elegant, easy-to-follow interface.
+46timer is a bilingual brewing timer for Tetsu Kasuya's 4:6 pour-over method.
 
-## What's the 4:6 Method?
+## Brew flow
 
-A game-changing pour-over technique by World Brewers Cup Champion Tetsu Kasuya that gives you total control over your coffee's strength and flavor profile by dividing water into strategic pours:
-- 40% of water for taste control (acidity vs. sweetness)
-- 60% of water for strength control (light vs. strong)
+1. Choose the bean amount, flavor balance, strength, and roast level.
+2. The app calculates total water at 1:15 and prepares the matching 4:6 pours.
+3. Follow the integrated step card, animation preview, countdown, and timeline.
+4. After the 3:30 brew, view language-specific coffee news.
 
-## Features
+Canonical routes are `/ja/setup`, `/en/setup`, `/ja/timer`, and `/en/timer`.
+Legacy routes such as `/`, `/setup`, and `/timer` are redirected while preserving
+the query string and hash. Shared recipe parameters use this format:
 
-✨ **Smart Guidance**
-- Visual progress tracker
-- Animated pour guides with precise timing
-- Voice countdown with natural speech synthesis
-- Available in English and Japanese
-
-⚡ **Fully Customizable**
-- Adjust coffee amount and roast level
-- Fine-tune taste balance
-- Control brew strength
-- Get precise water measurements
-
-## Tips
-- Start with a coarse grind - the 4:6 method requires all water to drain within 3:30
-- Use the visual timeline to gauge if your grind size needs adjustment
-- If water isn't draining fast enough, adjust to a coarser grind
-
-## Quick Start
-
-1. Visit [46timer](https://46timer.pages.dev/)
-2. Set your preferences
-3. Follow the guided pours
-4. Enjoy your perfect cup!
-
-## For Developers
-
-Built with React + TypeScript, featuring:
-- Material-UI components
-- Voice synthesis (SSML)
-- Cloudflare Pages hosting
-
-### Voice Guidance
-The app uses SSML (Speech Synthesis Markup Language) to create natural-sounding countdown voice cues before each step:
-
-```xml
-<speak>
-  <par>
-    <media xml:id="three" begin="0s">
-      <speak><prosody rate="x-fast">3</prosody></speak>
-    </media>
-
-    <media xml:id="two" begin="three.begin+1.0s">
-      <speak><prosody rate="x-fast">2</prosody></speak>
-    </media>
-
-    <media xml:id="one" begin="two.begin+1.0s">
-      <speak><prosody rate="x-fast">1</prosody></speak>
-    </media>
-
-    <media begin="one.begin+1.0s">
-      <speak><prosody rate="medium">Next Step!</prosody></speak>
-    </media>
-  </par>
-</speak>
+```text
+/en/setup?beans=20&flavor=middle&strength=medium&roast=medium
 ```
 
-Uses Google Cloud Text-to-Speech Wavenet voices:
+The URL values are compatible with the previous 46timer. Internally, the legacy
+`middle` flavor value maps to `neutral`, then maps back to `middle` when the URL
+is updated.
 
-- English
-  - Male: en-US-Wavenet-J
-  - Female: en-US-Wavenet-H
-- Japanese
-  - Male: ja-JP-Wavenet-D
-  - Female: ja-JP-Wavenet-B
+## 4:6 recipe rules
 
-### Development
+- Total water: bean amount × 15
+- First 40%: sweet = 40/60, balance = 50/50, sour = 60/40
+- Remaining 60%: light = one pour, balance = two pours, strong = three pours
+- Roast temperatures: light 93℃, medium 88℃, dark 83℃
+- Flavor pours start at 0:00 and 0:45; strength pours start at 1:30; finish is 3:30
+- Pour values are rounded to whole grams while preserving the exact final total
+
+## Neo-based interface
+
+The page structure, CSS Modules, design tokens, setup/timer routes, shared settings
+dialog, integrated timer card, startup/next-step previews, confirmation dialog,
+finish card, and shared timer core are based on Neo Brew Timer commit
+`7a0b8ef9079e9e865b051ed628a8a693db06209a`.
+
+The 4:6 calculation and legacy compatibility were checked against 46timer main
+commit `e8488d0c0c645ddf49aca2838baf5013513e8fd5` and the earlier integration work
+at `d5c0925e35643720f2cdca275826d7e9692d26da`.
+
+All 12 first/next/finish voice files and `public/assets/lottie/pour.json` were
+copied from the Neo reference commit. Switch and cooling animations are not used.
+
+The previous `46timer-settings` object is migrated into the persisted Neo-style
+settings shape. Language, notification mode, voice, and animation are retained.
+The former dark-mode preference has no Neo equivalent and is intentionally not
+shown; the Neo visual theme is the common baseline.
+
+## Development
 
 ```bash
-git clone https://github.com/takatama/46timer.git
-cd 46timer
 npm install
 npm run dev
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run test:e2e
 ```
 
+The production build is a static SPA for the existing Cloudflare Pages project
+`46timer`. Do not deploy it to the Neo Brew Timer project.
+
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request to suggest changes or improvements.
-
-## Acknowledgements
-- [Tetsu Kasuya](https://www.instagram.com/tetsukasuya/) for creating the 4:6 method
-- [Cloudflare](https://pages.cloudflare.com/) for hosting
+MIT. See [LICENSE](LICENSE).
