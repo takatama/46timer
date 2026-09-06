@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="46timer">
+  <rect width="512" height="512" rx="112" fill="#fbf4f0"/>
+  <path d="M112 176h244v116c0 74-50 124-122 124s-122-50-122-124V176Z" fill="#7c4d33"/>
+  <path d="M356 218h28c42 0 64 27 64 60s-24 60-72 60h-20" fill="none" stroke="#7c4d33" stroke-width="28" stroke-linecap="round"/>
+  <text x="234" y="294" fill="#fbf4f0" font-family="Arial, sans-serif" font-size="108" font-weight="700" text-anchor="middle">46</text>
+  <path d="M164 124c-18-25 24-34 4-62M234 124c-18-25 24-34 4-62M304 124c-18-25 24-34 4-62" fill="none" stroke="#dcbc9b" stroke-width="18" stroke-linecap="round"/>
+</svg>

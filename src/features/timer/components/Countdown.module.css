@@ -1,0 +1,15 @@
+.stepTime {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--md-text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.timeValue {
+  color: var(--md-text);
+  font-size: 1.75rem;
+  font-weight: 600;
+}
