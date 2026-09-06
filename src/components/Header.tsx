@@ -1,14 +1,15 @@
-import React from 'react';
 import { Box, IconButton, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import type { Language } from '../routing';
+import type { TranslationType } from '../types';
 
 interface HeaderProps {
   darkMode: boolean;
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
-  language: 'en' | 'ja';
-  handleLanguageChange: (_e: React.MouseEvent<HTMLElement>, newLang: 'en' | 'ja') => void;
-  t: any;
+  language: Language;
+  handleLanguageChange: (newLang: Language) => void;
+  t: TranslationType;
 }
 
 export default function Header({ darkMode, setDarkMode, language, handleLanguageChange, t }: HeaderProps) {
@@ -24,8 +25,9 @@ export default function Header({ darkMode, setDarkMode, language, handleLanguage
       <ToggleButtonGroup
         value={language}
         exclusive
-        onChange={handleLanguageChange}
+        onChange={(_, value: Language | null) => value && handleLanguageChange(value)}
         size="small"
+        aria-label={t.language}
       >
         <ToggleButton value="en">EN</ToggleButton>
         <ToggleButton value="ja">JA</ToggleButton>

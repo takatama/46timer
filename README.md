@@ -34,15 +34,32 @@ A game-changing pour-over technique by World Brewers Cup Champion Tetsu Kasuya t
 3. Follow the guided pours
 4. Enjoy your perfect cup!
 
+The shareable app URLs are `/ja/` and `/en/`. Recipe parameters continue to use
+the existing query string, for example:
+
+```text
+/en/?beans=20&flavor=middle&strength=medium&roast=medium
+```
+
+Opening a shared language URL does not overwrite the saved language preference.
+The preference changes only when EN or JA is selected in the header. The old
+root URL redirects to the saved language, then the browser language, and finally
+English when neither is available.
+
 ## For Developers
 
 Built with React + TypeScript, featuring:
 - Material-UI components
-- Voice synthesis (SSML)
+- Integrated current-step, animation-preview, and timeline card
+- Offline voice guidance
 - Cloudflare Pages hosting
 
 ### Voice Guidance
-The app uses SSML (Speech Synthesis Markup Language) to create natural-sounding countdown voice cues before each step:
+Committed WAV files provide first-step, next-step, and finish cues. The current
+cue is allowed to finish when the URL language changes; the next cue uses the new
+language. Voice assets are stored in `public/audio/`.
+
+The original assets were generated from SSML such as:
 
 ```xml
 <speak>
@@ -83,6 +100,24 @@ cd 46timer
 npm install
 npm run dev
 ```
+
+Validation commands:
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run test:e2e
+```
+
+### Shared timer source
+
+The recipe-independent timer core was synchronized from Neo Brew Timer commit
+`1afca8c`, also used by COCO Timer commit `37bfd97`. The copied code lives inside
+this repository under `src/shared/brew-timer`, so a standalone clone still builds.
+The 4:6 calculation, wording, CSS animation, and Material UI connection remain
+local to 46timer.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

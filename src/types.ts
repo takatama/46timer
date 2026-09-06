@@ -24,6 +24,20 @@ export interface StaticTranslations {
   footerMethodBy: string;
   footerMethodVideo: string;
   footerCreatedBy: string;
+  currentStep: string;
+  nextStep: string;
+  firstStep: string;
+  remaining: string;
+  addWater: string;
+  timeline: string;
+  sound: string;
+  vibration: string;
+  voice: string;
+  male: string;
+  female: string;
+  ready: string;
+  completeMessage: string;
+  settingsLocked: string;
 }
 
 export interface DynamicTranslations {
