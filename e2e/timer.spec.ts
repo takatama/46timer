@@ -29,11 +29,24 @@ test("setup carries the 4:6 choices into a brew that reaches completion", async 
   await page.getByRole("button", { name: "Strong", exact: true }).click();
   await page.getByRole("button", { name: "Dark", exact: true }).click();
   await expect(page.getByText("315g", { exact: true })).toBeVisible();
+  await expect(page.getByText("Bloom 76g", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("3 strength pours", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Required gear", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "V60 Dripper Neo", exact: true })).toBeVisible();
+  await page.getByText("Recipe details", { exact: true }).click();
+  await expect(page.getByTitle("Watch on YouTube")).toHaveAttribute("src", "https://www.youtube.com/embed/lJNPp-onikk");
   await page.getByRole("button", { name: "Start Timer", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/timer\?beans=21.*flavor=sour.*strength=strong.*roast=dark/);
   await expect(page.getByText("Beans 21g", { exact: true })).toBeVisible();
   await expect(page.getByText("Water 315g", { exact: true })).toBeVisible();
   await expect(page.getByText("Temp 83℃", { exact: true })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Brew settings" }).getByRole("listitem")).toHaveText([
+    "Temp 83℃",
+    "Water 315g",
+    "Beans 21g",
+    "Flavor Sour",
+    "Strength Strong",
+  ]);
   await expect(page.getByRole("img", { name: "Timeline" })).toBeVisible();
   await expect(page.getByText("First", { exact: true })).toBeVisible();
 

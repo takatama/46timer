@@ -57,7 +57,11 @@
     "roastLight": "Light",
     "roastMedium": "Medium",
     "roastDark": "Dark",
-    "temperature": "Water temperature"
+    "temperature": "Water temperature",
+    "bloomAmount": "Bloom {{amount}}g",
+    "pourCount": "{{count}} strength pours",
+    "equipment": "Required gear",
+    "affiliate": "As an Amazon Associate, 46timer earns from qualifying purchases."
   },
   "timer": {
     "currentStep": "Current Step",
@@ -85,7 +89,8 @@
     "beansChipLabel": "Beans",
     "waterChipLabel": "Water",
     "strengthLabel": "Strength",
-    "temperatureLabel": "Temp"
+    "temperatureLabel": "Temp",
+    "settingsSummary": "Brew settings"
   },
   "stepLabels": [
     "Bloom",

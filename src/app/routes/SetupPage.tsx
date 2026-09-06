@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { computeSteps, getTotalWater, getWaterTemperature } from "../../features/recipe";
 import type { FlavorProfile, RoastLevel, StrengthProfile } from "../../features/recipe";
 import { useSessionStore } from "../../features/timer/store";
+import { getEquipmentItems } from "../../shared/affiliate/amazon";
 import { useDisplayLanguage } from "../../shared/i18n/DisplayLanguage";
 import { localizedPath } from "../../shared/i18n/routing";
 import styles from "./SetupPage.module.css";
@@ -11,6 +12,7 @@ import styles from "./SetupPage.module.css";
 const flavors: FlavorProfile[] = ["sweet", "neutral", "sour"];
 const strengths: StrengthProfile[] = ["light", "medium", "strong"];
 const roasts: RoastLevel[] = ["light", "medium", "dark"];
+const strengthPourCounts: Record<StrengthProfile, number> = { light: 1, medium: 2, strong: 3 };
 
 function isOneOf<T extends string>(value: string | null, options: readonly T[]): value is T {
   return value !== null && options.includes(value as T);
@@ -55,6 +57,9 @@ export function SetupPage() {
   const totalWater = getTotalWater(beans);
   const steps = useMemo(() => computeSteps(beans, flavor, strength), [beans, flavor, strength]);
   const temperature = getWaterTemperature(roast);
+  const bloomWater = steps[0]?.increment ?? 0;
+  const strengthPourCount = strengthPourCounts[strength];
+  const equipment = getEquipmentItems(displayLanguage);
 
   const handleStart = () => {
     const next = new URLSearchParams(searchParams);
@@ -65,6 +70,21 @@ export function SetupPage() {
   return (
     <main className="content">
       <section className="card">
+        <div className={styles.settingRow}>
+          <span className={styles.optionLabel}>{t("setup.roast")}</span>
+          <div className={`choice-row ${styles.settingChoices}`}>
+            {roasts.map((value) => (
+              <button key={value} className={`choice${roast === value ? " active" : ""}`} onClick={() => setRoast(value)}>
+                {t(`setup.roast${value[0].toUpperCase()}${value.slice(1)}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className={styles.derivedSetting}>
+          <span>{t("setup.temperature")}</span>
+          <strong>{temperature}℃</strong>
+        </div>
+
         <div className={styles.stepperRow}>
           <span className={styles.beansLabel}>{t("setup.beans")}</span>
           <div className={styles.stepperControls}>
@@ -73,15 +93,15 @@ export function SetupPage() {
             <button className={styles.btnIcon} onClick={() => setBeans(beans + 1)} aria-label="increase">＋</button>
           </div>
         </div>
-        <div className={styles.calculatedWater}>
-          <span className={styles.calculatedWaterLabel}>{t("setup.water")}</span>
-          <span className={styles.calculatedWaterValue}>{totalWater}g</span>
+        <div className={styles.derivedSetting}>
+          <span>{t("setup.water")}</span>
+          <strong>{totalWater}g</strong>
           <span className={styles.waterRatio}>1:15</span>
         </div>
 
-        <div className={styles.optionGroup}>
-          <div className={styles.optionLabel}>{t("setup.flavor")}</div>
-          <div className="choice-row">
+        <div className={styles.settingRow}>
+          <span className={styles.optionLabel}>{t("setup.flavor")}</span>
+          <div className={`choice-row ${styles.settingChoices}`}>
             {flavors.map((value) => (
               <button key={value} className={`choice${flavor === value ? " active" : ""}`} onClick={() => setFlavor(value)}>
                 {t(`setup.${value}`)}
@@ -89,10 +109,11 @@ export function SetupPage() {
             ))}
           </div>
         </div>
+        <div className={styles.derivedSetting}>{t("setup.bloomAmount", { amount: bloomWater })}</div>
 
-        <div className={styles.optionGroup}>
-          <div className={styles.optionLabel}>{t("setup.strength")}</div>
-          <div className="choice-row">
+        <div className={styles.settingRow}>
+          <span className={styles.optionLabel}>{t("setup.strength")}</span>
+          <div className={`choice-row ${styles.settingChoices}`}>
             {strengths.map((value) => (
               <button key={value} className={`choice${strength === value ? " active" : ""}`} onClick={() => setStrength(value)}>
                 {t(`setup.strength${value[0].toUpperCase()}${value.slice(1)}`)}
@@ -100,18 +121,7 @@ export function SetupPage() {
             ))}
           </div>
         </div>
-
-        <div className={styles.optionGroup}>
-          <div className={styles.optionLabel}>{t("setup.roast")}</div>
-          <div className="choice-row">
-            {roasts.map((value) => (
-              <button key={value} className={`choice${roast === value ? " active" : ""}`} onClick={() => setRoast(value)}>
-                {t(`setup.roast${value[0].toUpperCase()}${value.slice(1)}`)}
-              </button>
-            ))}
-          </div>
-          <div className={styles.temperature}>{t("setup.temperature")} <strong>{temperature}℃</strong></div>
-        </div>
+        <div className={styles.derivedSetting}>{t("setup.pourCount", { count: strengthPourCount })}</div>
       </section>
 
       <button className={styles.btnPrimary} onClick={handleStart}>{t("setup.start")}</button>
@@ -135,8 +145,31 @@ export function SetupPage() {
               ))}
             </div>
           </div>
+          <div className={styles.detailsVideo}>
+            <iframe
+              src="https://www.youtube.com/embed/lJNPp-onikk"
+              title={t("intro.youtube")}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
         </div>
       </details>
+
+      <section className={`card ${styles.equipmentCard}`} aria-labelledby="label-equipment">
+        <div className={styles.equipmentHeader}>
+          <h2 id="label-equipment" className={`card-title ${styles.equipmentTitle}`}>{t("setup.equipment")}</h2>
+        </div>
+        <ul className={styles.equipmentList}>
+          {equipment.map((item) => (
+            <li key={item.name}>
+              <a href={item.href} target="_blank" rel="noopener noreferrer sponsored">{item.name}</a>
+            </li>
+          ))}
+        </ul>
+        <p className={styles.affiliateDisclosure}>{t("setup.affiliate")}</p>
+      </section>
     </main>
   );
 }

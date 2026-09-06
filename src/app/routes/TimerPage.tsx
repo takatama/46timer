@@ -76,21 +76,21 @@ export function TimerPage() {
   return (
     <main className="content">
       <section className="card">
-        <div className={styles.chipRow}>
-          <span className={styles.chip}>
-            {t("timer.beansChipLabel")} <span className={styles.chipValue}>{beans}g</span>
+        <div className={styles.chipRow} role="list" aria-label={t("timer.settingsSummary")}>
+          <span className={styles.chip} role="listitem">
+            {t("timer.temperatureLabel")} <span className={styles.chipValue}>{temperature}℃</span>
           </span>
-          <span className={styles.chip}>
+          <span className={styles.chip} role="listitem">
             {t("timer.waterChipLabel")} <span className={styles.chipValue}>{totalWater}g</span>
           </span>
-          <span className={styles.chip}>
+          <span className={styles.chip} role="listitem">
+            {t("timer.beansChipLabel")} <span className={styles.chipValue}>{beans}g</span>
+          </span>
+          <span className={styles.chip} role="listitem">
             {t("timer.flavorLabel")} <span className={styles.chipValue}>{t(`setup.${flavor}`)}</span>
           </span>
-          <span className={styles.chip}>
+          <span className={styles.chip} role="listitem">
             {t("timer.strengthLabel")} <span className={styles.chipValue}>{t(`setup.strength${strength[0].toUpperCase()}${strength.slice(1)}`)}</span>
-          </span>
-          <span className={styles.chip}>
-            {t("timer.temperatureLabel")} <span className={styles.chipValue}>{temperature}℃</span>
           </span>
         </div>
         <button className={styles.textLink} onClick={() => navigate(localizedPath(displayLanguage, "setup", location.search, location.hash))}>

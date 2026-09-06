@@ -57,7 +57,11 @@
     "roastLight": "浅煎り",
     "roastMedium": "中煎り",
     "roastDark": "深煎り",
-    "temperature": "湯温"
+    "temperature": "湯温",
+    "bloomAmount": "蒸らし {{amount}}g",
+    "pourCount": "注湯 {{count}}回",
+    "equipment": "必要な器具",
+    "affiliate": "Amazonのアソシエイトとして、46timerは適格販売により収入を得ています。"
   },
   "timer": {
     "currentStep": "今のステップ",
@@ -85,7 +89,8 @@
     "beansChipLabel": "豆",
     "waterChipLabel": "湯量",
     "strengthLabel": "濃さ",
-    "temperatureLabel": "湯温"
+    "temperatureLabel": "湯温",
+    "settingsSummary": "抽出設定"
   },
   "stepLabels": [
     "蒸らし",
