@@ -1,11 +1,8 @@
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import VolumeOffIcon from "@mui/icons-material/VolumeOff";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import { Box, Button, Card, CardContent, FormControlLabel, Stack, Switch, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import type { Flavor, RoastLevel, Strength } from "../recipe";
 import type { TranslationType } from "../types";
-import type { Voice } from "../hooks/useAudioGuidance";
 
 interface Props {
   t: TranslationType;
@@ -18,12 +15,7 @@ interface Props {
   strength: Strength;
   setStrength: (value: Strength) => void;
   waterTemperature: number;
-  soundOn: boolean;
-  setSoundOn: (value: boolean) => void;
-  vibrationOn: boolean;
-  setVibrationOn: (value: boolean) => void;
-  voice: Voice;
-  setVoice: (value: Voice) => void;
+  totalWater: number;
   disabled: boolean;
 }
 
@@ -37,7 +29,7 @@ function SettingRow({ label, children }: { label: string; children: React.ReactN
 }
 
 export function RecipeSettings(props: Props) {
-  const { t, beansAmount, setBeansAmount, roastLevel, setRoastLevel, flavor, setFlavor, strength, setStrength, waterTemperature, soundOn, setSoundOn, vibrationOn, setVibrationOn, voice, setVoice, disabled } = props;
+  const { t, beansAmount, setBeansAmount, roastLevel, setRoastLevel, flavor, setFlavor, strength, setStrength, waterTemperature, totalWater, disabled } = props;
   const toggleSx = {
     display: "grid",
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
@@ -62,7 +54,12 @@ export function RecipeSettings(props: Props) {
               <Button aria-label="decrease" variant="outlined" disabled={disabled || beansAmount <= 1} onClick={() => setBeansAmount(beansAmount - 1)} sx={{ minWidth: 40 }}><RemoveIcon /></Button>
               <Typography minWidth={54} textAlign="center" fontWeight={700}>{beansAmount}g</Typography>
               <Button aria-label="increase" variant="outlined" disabled={disabled} onClick={() => setBeansAmount(beansAmount + 1)} sx={{ minWidth: 40 }}><AddIcon /></Button>
-              <Typography color="text.secondary">/ {beansAmount * 15}g</Typography>
+            </Stack>
+          </SettingRow>
+          <SettingRow label={t.waterVolume}>
+            <Stack direction="row" spacing={1} alignItems="baseline">
+              <Typography variant="h6" fontWeight={800}>{totalWater}g</Typography>
+              <Typography variant="caption" color="text.secondary">{t.waterRatio}</Typography>
             </Stack>
           </SettingRow>
           <SettingRow label={t.taste}>
@@ -78,18 +75,6 @@ export function RecipeSettings(props: Props) {
               <ToggleButton value="medium">{t.medium}</ToggleButton>
               <ToggleButton value="strong">{t.strong}</ToggleButton>
             </ToggleButtonGroup>
-          </SettingRow>
-          <SettingRow label={t.sound}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <FormControlLabel control={<Switch inputProps={{ "aria-label": t.sound }} checked={soundOn} onChange={(_, checked) => setSoundOn(checked)} />} label={soundOn ? <VolumeUpIcon /> : <VolumeOffIcon />} />
-              <ToggleButtonGroup value={voice} exclusive disabled={!soundOn} onChange={(_, value: Voice | null) => value && setVoice(value)} size="small">
-                <ToggleButton value="female">{t.female}</ToggleButton>
-                <ToggleButton value="male">{t.male}</ToggleButton>
-              </ToggleButtonGroup>
-            </Stack>
-          </SettingRow>
-          <SettingRow label={t.vibration}>
-            <Switch inputProps={{ "aria-label": t.vibration }} checked={vibrationOn} onChange={(_, checked) => setVibrationOn(checked)} />
           </SettingRow>
           {disabled && <Typography variant="caption" color="text.secondary">{t.settingsLocked}</Typography>}
         </Stack>

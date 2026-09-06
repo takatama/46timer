@@ -4,6 +4,7 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import { Box, Button, Chip, LinearProgress, Paper, Stack, Typography } from "@mui/material";
 import { formatTimerTime, type TimerStatus } from "../shared/brew-timer";
 import type { Step, TranslationType } from "../types";
+import { PourAnimation } from "./PourAnimation";
 
 interface Props {
   t: TranslationType;
@@ -66,7 +67,7 @@ export function BrewCard(props: Props) {
         {previewStep ? (
           <Stack role="status" aria-label={previewStepIndex === 0 ? t.firstStep : t.nextStep} alignItems="center" spacing={1} textAlign="center">
             <Typography variant="overline" color="primary">{previewStepIndex === 0 ? t.firstStep : t.nextStep}</Typography>
-            <Box className="pour-animation" aria-hidden="true"><span className="pour-stream" /><span className="pour-cup" /></Box>
+            <PourAnimation />
             <Typography variant="h5" fontWeight={800} sx={{ overflowWrap: "anywhere" }}>{previewInstruction}</Typography>
             <Typography color="text.secondary">{t.addWater} +{Math.round(previewStep.pourAmount)}g</Typography>
           </Stack>
@@ -82,7 +83,7 @@ export function BrewCard(props: Props) {
       <LinearProgress variant="determinate" value={progress} sx={{ height: 7, borderRadius: 8, mb: 2 }} />
       <Stack direction="row" justifyContent="center" spacing={1.5}>
         {!isFinished && <Button variant="contained" size="large" startIcon={isRunningOrStarting ? <PauseIcon /> : <PlayArrowIcon />} onClick={onToggle}>{isRunningOrStarting ? t.pause : t.play}</Button>}
-        {(currentTime > 0 || isStarting || isFinished) && <Button variant="outlined" size="large" startIcon={<ReplayIcon />} onClick={onReset}>{t.reset}</Button>}
+        {!isFinished && (currentTime > 0 || isStarting) && <Button variant="outlined" size="large" startIcon={<ReplayIcon />} onClick={onReset}>{t.reset}</Button>}
       </Stack>
     </Paper>
   );

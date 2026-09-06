@@ -38,6 +38,17 @@ export interface StaticTranslations {
   ready: string;
   completeMessage: string;
   settingsLocked: string;
+  settings: string;
+  notification: string;
+  display: string;
+  animation: string;
+  close: string;
+  startTimer: string;
+  editSettings: string;
+  waterRatio: string;
+  newsTitle: string;
+  newsLoading: string;
+  newsUnavailable: string;
 }
 
 export interface DynamicTranslations {

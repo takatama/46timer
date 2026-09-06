@@ -9,11 +9,12 @@ describe("language routes", () => {
   });
 
   it("keeps a canonical shared URL without changing the preference", () => {
-    expect(resolveLanguageRoute("/ja/", "?beans=25", "#brew", "en")).toEqual({ language: "ja", redirectTo: null });
+    expect(resolveLanguageRoute("/ja/timer", "?beans=25", "#brew", "en")).toEqual({ language: "ja", page: "timer", redirectTo: null });
   });
 
   it("safely normalizes old and unsupported paths while preserving query and hash", () => {
-    expect(resolveLanguageRoute("/", "?beans=25", "#brew", "ja").redirectTo).toBe("/ja/?beans=25#brew");
-    expect(resolveLanguageRoute("/fr/timer", "?beans=20", "", "en").redirectTo).toBe("/en/?beans=20");
+    expect(resolveLanguageRoute("/", "?beans=25", "#brew", "ja").redirectTo).toBe("/ja/setup?beans=25#brew");
+    expect(resolveLanguageRoute("/fr/timer", "?beans=20", "", "en").redirectTo).toBe("/en/timer?beans=20");
+    expect(resolveLanguageRoute("/en/", "", "", "ja").redirectTo).toBe("/en/setup");
   });
 });
