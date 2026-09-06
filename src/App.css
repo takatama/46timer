@@ -1,9 +1,9 @@
-.blinking {
-  animation: blink 3s infinite;
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+body {
+  margin: 0;
 }

@@ -1,305 +1,226 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Typography } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Header from './components/Header';
-import Settings from './components/Settings';
-import Controls from './components/Controls';
-import Timeline from './components/Timeline';
-import Footer from './components/Footer';
-import { translations } from './translations/index'
-import { DynamicTranslations, Step } from './types';
-import './App.css';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useSearchParams
-} from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button, Container, Stack } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { BrowserRouter, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import Header from "./components/Header";
+import { BrewCard } from "./components/BrewCard";
+import { CoffeeNews } from "./components/CoffeeNews";
+import Footer from "./components/Footer";
+import { SettingsModal } from "./components/SettingsModal";
+import { SetupPage } from "./components/SetupPage";
+import { useAudioGuidance, type Voice } from "./hooks/useAudioGuidance";
+import { useCoffeeNews } from "./hooks/useCoffeeNews";
+import { calculateSteps, getWaterTemperature, readBrewParameters, type Flavor, type RoastLevel, type Strength } from "./recipe";
+import { choosePreferredLanguage, getSavedLanguage, languagePath, LANGUAGE_STORAGE_KEY, resolveLanguageRoute, type AppPage, type Language } from "./routing";
+import { useBrewTimerController, useWakeLock, type PreNotifyEvent } from "./shared/brew-timer";
+import { translations } from "./translations";
+import "./App.css";
 
-// Create theme with both light and dark modes
-const getTheme = (mode: 'light' | 'dark') => createTheme({
+const SETTINGS_STORAGE_KEY = "46timer-settings";
+
+interface SavedSettings {
+  soundOn?: boolean;
+  vibrationOn?: boolean;
+  animationOn?: boolean;
+  darkMode?: boolean;
+  voice?: Voice;
+}
+
+function readSavedSettings(): SavedSettings {
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) as SavedSettings : {};
+  } catch {
+    return {};
+  }
+}
+
+const getTheme = (mode: "light" | "dark") => createTheme({
   palette: {
     mode,
-    primary: {
-      main: mode === 'light' ? '#6D4C41' : '#A1887F',
-    },
-    secondary: {
-      main: mode === 'light' ? '#A1887F' : '#8D6E63',
-    },
-    background: {
-      default: mode === 'light' ? '#F5F5DC' : '#121212',
-      paper: mode === 'light' ? '#FFFFFF' : '#1E1E1E',
-    },
+    primary: { main: mode === "light" ? "#7A4E3A" : "#D5A98D" },
+    secondary: { main: mode === "light" ? "#A26B4B" : "#C99A7B" },
+    background: { default: mode === "light" ? "#F7F1E8" : "#151311", paper: mode === "light" ? "#FFFDF9" : "#211E1B" },
   },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
-  }
+  shape: { borderRadius: 14 },
+  typography: { fontFamily: '"Inter", "Noto Sans JP", "Roboto", sans-serif' },
 });
 
-// Function to calculate timer steps based on the 4:6 method
-function calculateSteps(beansAmount: number, flavor: string, strength: string) {
-  // Total water used = beansAmount * 15
-  const totalWater = beansAmount * 15;
-  const flavorWater = totalWater * 0.4;
-  const strengthWater = totalWater * 0.6;
-  let flavor1, flavor2;
-  // Adjust flavor pours based on taste selection
-  if (flavor === "sweet") {
-    flavor1 = flavorWater * 0.4;
-    flavor2 = flavorWater * 0.6;
-  } else if (flavor === "sour") {
-    flavor1 = flavorWater * 0.6;
-    flavor2 = flavorWater * 0.4;
-  } else {
-    flavor1 = flavorWater * 0.5;
-    flavor2 = flavorWater * 0.5;
-  }
-  // Determine number of strength pours based on strength selection
-  let strengthSteps;
-  if (strength === "light") {
-    strengthSteps = 1;
-  } else if (strength === "strong") {
-    strengthSteps = 3;
-  } else {
-    strengthSteps = 2;
-  }
-  const steps: Array<Step> = [];
-  // Flavor pours are fixed at 0s and 45s
-  steps.push({
-    time: 0,
-    pourAmount: flavor1,
-    cumulative: flavor1,
-    descriptionKey: "flavorPour1",
-    status: 'upcoming'
-  });
-  steps.push({
-    time: 45,
-    pourAmount: flavor2,
-    cumulative: flavor1 + flavor2,
-    descriptionKey: "flavorPour2",
-    status: 'upcoming'
-  });
-  // Strength pour 1 is fixed at 90 seconds (1:30)
-  const strengthPourAmount = strengthWater / strengthSteps;
-  steps.push({
-    time: 90,
-    pourAmount: strengthPourAmount,
-    cumulative: steps[steps.length - 1].cumulative + strengthPourAmount,
-    descriptionKey: "strengthPour1",
-    status: 'upcoming'
-  });
-  // If more than one strength pour, calculate remaining pours evenly over the remaining 120 seconds (210 - 90)
-  if (strengthSteps > 1) {
-    const remainingPours = strengthSteps - 1;
-    const remainingTime = 210 - 90; // 120 seconds remaining
-    const interval = remainingTime / (remainingPours + 1);
-    for (let i = 2; i <= strengthSteps; i++) {
-      const t = 90 + interval * (i - 1);
-      const cumulative: number = steps[steps.length - 1].cumulative + strengthPourAmount;
-      steps.push({
-        time: t,
-        pourAmount: strengthPourAmount,
-        cumulative: cumulative,
-        descriptionKey: `strengthPour${i}` as keyof DynamicTranslations,
-        status: 'upcoming'
-      });
-    }
-  }
-  // Final step (finish) is fixed at 210 seconds
-  steps.push({
-    time: 210,
-    pourAmount: 0,
-    cumulative: totalWater,
-    descriptionKey: "finish",
-    status: 'upcoming'
-  });
-  return steps;
-}
-
-function AppWrapper() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const [darkMode, setDarkMode] = useState(prefersDarkMode);
-  const theme = getTheme(darkMode ? 'dark' : 'light');
-  const [language, setLanguage] = useState<"en" | "ja">("en");
-  const t = translations[language]; // shorthand for current translations
-  const [roastLevel, setRoastLevel] = useState("medium");
-  const [beansAmount, setBeansAmount] = useState(20);
-  const [flavor, setFlavor] = useState("middle");
-  const [strength, setStrength] = useState("medium");
-  const [steps, setSteps] = useState<Step[]>([]);
-  const timerRef = useRef<number | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
+function TimerApp({ language, page, onLanguageChange, onPageChange }: {
+  language: Language;
+  page: AppPage;
+  onLanguageChange: (language: Language) => void;
+  onPageChange: (page: AppPage) => void;
+}) {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const savedSettings = useRef(readSavedSettings()).current;
+  const [darkMode, setDarkMode] = useState(savedSettings.darkMode ?? prefersDarkMode);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [soundOn, setSoundOn] = useState(true);
-  const [voice, setVoice] = useState<'male' | 'female'>('female');
+  const initialParameters = useRef(readBrewParameters(searchParams)).current;
+  const [beansAmount, setBeansAmount] = useState(initialParameters.beansAmount);
+  const [roastLevel, setRoastLevel] = useState<RoastLevel>(initialParameters.roastLevel);
+  const [flavor, setFlavor] = useState<Flavor>(initialParameters.flavor);
+  const [strength, setStrength] = useState<Strength>(initialParameters.strength);
+  const [soundOn, setSoundOn] = useState(savedSettings.soundOn ?? false);
+  const [vibrationOn, setVibrationOn] = useState(savedSettings.vibrationOn ?? false);
+  const [animationOn, setAnimationOn] = useState(savedSettings.animationOn ?? true);
+  const [voice, setVoice] = useState<Voice>(savedSettings.voice === "male" ? "male" : "female");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const t = translations[language];
+  const theme = useMemo(() => getTheme(darkMode ? "dark" : "light"), [darkMode]);
+  const steps = useMemo(() => calculateSteps(beansAmount, flavor, strength), [beansAmount, flavor, strength]);
+  const timerSteps = useMemo(() => steps.map((step, index) => ({ timeSec: step.time, isFinish: index === steps.length - 1 })), [steps]);
+  const { playFirst, playNext, playFinish } = useAudioGuidance(language, voice, soundOn);
+  const wakeLock = useWakeLock();
+
+  const vibrate = useCallback((pattern: number | number[]) => {
+    if (vibrationOn && "vibrate" in navigator) navigator.vibrate(pattern);
+  }, [vibrationOn]);
+  const onStart = useCallback(() => {
+    playFirst();
+    vibrate(180);
+  }, [playFirst, vibrate]);
+  const onPreNotify = useCallback(({ isFinish }: PreNotifyEvent) => {
+    if (isFinish) playFinish();
+    else playNext();
+    vibrate(180);
+  }, [playFinish, playNext, vibrate]);
+  const onStepCrossed = useCallback(() => vibrate([140, 80, 140]), [vibrate]);
+  const controller = useBrewTimerController({
+    steps: timerSteps,
+    speedMultiplier: 1,
+    startDelayMs: animationOn ? 5000 : 0,
+    wakeLock,
+    onStart,
+    onPreNotify,
+    onStepCrossed,
+  });
+  const timerStatus = controller.timer.status;
+  const resetTimer = controller.reset;
+  const isFinished = timerStatus === "finished";
+  const news = useCoffeeNews(language, isFinished);
 
   useEffect(() => {
-    const paramBeans = parseInt(searchParams.get('beans') || '', 10);
-    const paramFlavor = searchParams.get('flavor');
-    const paramStrength = searchParams.get('strength');
-    const paramRoast = searchParams.get('roast');
+    document.documentElement.lang = language;
+  }, [language]);
 
-    if (!isNaN(paramBeans)) {
-      setBeansAmount(paramBeans);
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set("beans", String(beansAmount));
+    next.set("flavor", flavor);
+    next.set("strength", strength);
+    next.set("roast", roastLevel);
+    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
+  }, [beansAmount, flavor, roastLevel, searchParams, setSearchParams, strength]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ soundOn, vibrationOn, animationOn, darkMode, voice }));
+    } catch {
+      // Settings remain usable for the current visit when storage is blocked.
     }
-    if (paramFlavor) {
-      setFlavor(paramFlavor);
-    }
-    if (paramStrength) {
-      setStrength(paramStrength);
-    }
-    if (paramRoast) {
-      setRoastLevel(paramRoast);
-    }
-  }, [searchParams]);
-  
-  // Detect user's preferred language
-  useEffect(() => {
-    const userLang = navigator.language || navigator.languages[0];
-    if (userLang.startsWith('ja')) {
-      setLanguage('ja');
-    } else {
-      setLanguage('en');
-    }
-  }, []);
+  }, [animationOn, darkMode, soundOn, vibrationOn, voice]);
 
-  // Recalculate steps whenever coffee parameters change
   useEffect(() => {
-    const newSteps = calculateSteps(beansAmount, flavor, strength);
-    setSteps(newSteps);
-  }, [beansAmount, flavor, strength]);
+    if (page === "setup" && timerStatus !== "idle") resetTimer();
+  }, [page, resetTimer, timerStatus]);
 
-  // Update URL query parameters when state changes
-  useEffect(() => {
-    const params = new URLSearchParams();
-    params.set('beans', beansAmount.toString());
-    params.set('flavor', flavor);
-    params.set('strength', strength);
-    params.set('roast', roastLevel);
-    setSearchParams(params);
-  }, [beansAmount, flavor, strength, roastLevel, setSearchParams]);
-
-  // Cleanup timer when component unmounts
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
-  // Update dark mode when system preference changes
-  useEffect(() => {
-    setDarkMode(prefersDarkMode);
-  }, [prefersDarkMode]);
-
-  // Start or resume the timer
-  const handlePlay = () => {
-    if (timerRunning) return;
-    setTimerRunning(true);
-    timerRef.current = setInterval(() => {
-      setCurrentTime((prev) => prev + 0.5);
-    }, 500);
+  const handleStart = () => {
+    controller.toggle();
+    onPageChange("timer");
   };
-
-  // Pause the timer
-  const handlePause = () => {
-    if (timerRef.current !== null) {
-      clearInterval(timerRef.current);
-    }
-    setTimerRunning(false);
-  };
-
-  // Reset the timer
-  const handleReset = () => {
-    if (timerRef.current !== null) {
-      clearInterval(timerRef.current);
-    }
-    setTimerRunning(false);
-    setCurrentTime(0);
-  };
-
-  // Handler for language toggle
-  const handleLanguageChange = (_e: React.MouseEvent<HTMLElement>, newLang: "en" | "ja") => {
-    if (newLang) {
-      setLanguage(newLang);
-    }
-  };
-
-  const handleToggleSound = (isSoundOn: boolean) => {
-    setSoundOn(isSoundOn);
+  const handleEdit = () => {
+    controller.reset();
+    onPageChange("setup");
   };
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="sm" sx={{
-        bgcolor: 'background.default',
-        color: 'text.primary',
-        minHeight: '100vh',
-        py: 2,
-        width: '100%',
-      }}>
-        <Header
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
+      <Container maxWidth="sm" sx={{ bgcolor: "background.default", color: "text.primary", minHeight: "100vh", py: 2, px: { xs: 1.5, sm: 3 } }}>
+        <Header t={t} onOpenSettings={() => setSettingsOpen(true)} />
+        <SettingsModal
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          t={t}
           language={language}
-          handleLanguageChange={handleLanguageChange}
-          t={t}
-        />
-
-        <Typography variant="h5" align="center" gutterBottom>
-          {t.title}
-        </Typography>
-
-        <Settings
-          t={t}
-          beansAmount={beansAmount}
-          setBeansAmount={setBeansAmount}
-          roastLevel={roastLevel}
-          setRoastLevel={setRoastLevel}
-          flavor={flavor}
-          setFlavor={setFlavor}
-          strength={strength}
-          setStrength={setStrength}
-        />
-
-        <Controls
-          t={t}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onReset={handleReset}
-          onToggleSound={handleToggleSound}
+          onLanguageChange={onLanguageChange}
+          soundOn={soundOn}
+          setSoundOn={setSoundOn}
+          vibrationOn={vibrationOn}
+          setVibrationOn={setVibrationOn}
           voice={voice}
           setVoice={setVoice}
-        />
-
-        <Timeline
-          t={t}
-          steps={steps}
-          setSteps={setSteps}
-          currentTime={currentTime}
+          animationOn={animationOn}
+          setAnimationOn={setAnimationOn}
           darkMode={darkMode}
-          soundOn={soundOn}
-          language={language}
-          voice={voice}
+          setDarkMode={setDarkMode}
         />
 
+        {page === "setup" ? (
+          <SetupPage
+            t={t}
+            beansAmount={beansAmount}
+            setBeansAmount={setBeansAmount}
+            roastLevel={roastLevel}
+            setRoastLevel={setRoastLevel}
+            flavor={flavor}
+            setFlavor={setFlavor}
+            strength={strength}
+            setStrength={setStrength}
+            waterTemperature={getWaterTemperature(roastLevel)}
+            onStart={handleStart}
+          />
+        ) : (
+          <main>
+            <BrewCard
+              t={t}
+              steps={steps}
+              currentTime={controller.timer.currentTime}
+              currentStepIndex={controller.timer.currentStepIndex}
+              status={controller.timer.status}
+              isStarting={controller.isStarting}
+              isRunningOrStarting={controller.isRunningOrStarting}
+              previewStepIndex={controller.previewStepIndex}
+              beansAmount={beansAmount}
+              totalWater={beansAmount * 15}
+              temperature={getWaterTemperature(roastLevel)}
+              onToggle={controller.toggle}
+              onReset={controller.reset}
+            />
+            {isFinished && <CoffeeNews t={t} news={news.news} loading={news.loading} failed={news.failed} />}
+            <Stack alignItems="center" mb={3}>
+              <Button variant="text" onClick={handleEdit}>{t.editSettings}</Button>
+            </Stack>
+          </main>
+        )}
         <Footer t={t} />
       </Container>
     </ThemeProvider>
   );
 }
 
-export default AppWrapper;
+function RoutedApp() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const preferredLanguage = choosePreferredLanguage(getSavedLanguage(), navigator.language);
+  const route = resolveLanguageRoute(location.pathname, location.search, location.hash, preferredLanguage);
+  if (route.redirectTo) return <Navigate to={route.redirectTo} replace />;
+
+  const handleLanguageChange = (nextLanguage: Language) => {
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+    } catch {
+      // The URL still changes when private browsing blocks storage.
+    }
+    navigate(`${languagePath(nextLanguage, route.page)}${location.search}${location.hash}`, { replace: true });
+  };
+  const handlePageChange = (nextPage: AppPage) => {
+    navigate(`${languagePath(route.language, nextPage)}${location.search}${location.hash}`);
+  };
+  return <TimerApp language={route.language} page={route.page} onLanguageChange={handleLanguageChange} onPageChange={handlePageChange} />;
+}
+
+export default function AppWrapper() {
+  return <BrowserRouter><RoutedApp /></BrowserRouter>;
+}

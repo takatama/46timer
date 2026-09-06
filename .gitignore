@@ -28,3 +28,5 @@ dist-ssr
 .dev.vars
 
 .vite
+test-results
+playwright-report
